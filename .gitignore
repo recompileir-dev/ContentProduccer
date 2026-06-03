@@ -4,3 +4,5 @@
 .vscode/
 *.user
 *.suo
+run-local-wordpress-test.ps1
+run-local-wordpress-test.log
