@@ -13,10 +13,13 @@ a configured time every day.
 - Generates a Persian article using the OpenAI Responses API
 - Uses OpenAI web search for fresh news research
 - Generates Instagram carousel images using the OpenAI Image API
-- Saves the article and images to a local output directory
+- Uploads generated images directly to the WordPress Media Library
+- Publishes the article to WordPress with the first image as featured media
+- Publishes the generated images as an Instagram carousel
+- Uses the generated Instagram caption without saving article or image files locally
 
 This version does not use a database, distributed lock, retry policy, or
-external scheduler package. It also does not publish to Instagram yet.
+external scheduler package.
 
 ## Run
 
@@ -38,7 +41,7 @@ Set the OpenAI API key as an environment variable. Do not commit the key:
 export OPENAI_API_KEY="your-api-key"
 ```
 
-Configure OpenAI models, prompt path, image count, and output path in
+Configure OpenAI models, prompt path, and image count in
 `src/ContentProducer.Worker/appsettings.json`:
 
 ```json
@@ -48,11 +51,20 @@ Configure OpenAI models, prompt path, image count, and output path in
     "ImageModel": "gpt-image-2",
     "EnableWebSearch": true,
     "ImageCount": 4,
-    "PromptFilePath": "prompts/article-news-fa.md",
-    "OutputDirectory": "output"
+    "PromptFilePath": "prompts/article-news-fa.md"
   }
 }
 ```
+
+Set WordPress and Instagram secrets as environment variables:
+
+```bash
+export WORDPRESS_APPLICATION_PASSWORD="your-wordpress-application-password"
+export INSTAGRAM_ACCESS_TOKEN="your-instagram-access-token"
+```
+
+Then configure the WordPress site, username, Instagram User ID, and Graph API
+version in `appsettings.json`.
 
 Then run:
 
@@ -60,7 +72,7 @@ Then run:
 dotnet run --project src/ContentProducer.Worker
 ```
 
-Each run creates a timestamped directory containing `article.md` and carousel
-PNG files.
+Each run sends generated content directly to WordPress and Instagram. The
+WordPress Media Library provides public image URLs required by Instagram.
 
 More project documentation is available in [docs](./docs/README.md).

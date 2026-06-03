@@ -2,5 +2,7 @@ namespace ContentProducer.Worker;
 
 public interface IOpenAiArticleService
 {
-    Task<string> GenerateArticleAsync(string prompt, CancellationToken cancellationToken);
+    Task<GeneratedArticle> GenerateArticleAsync(
+        string prompt,
+        CancellationToken cancellationToken);
 }

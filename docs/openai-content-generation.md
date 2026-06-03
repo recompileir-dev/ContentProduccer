@@ -9,7 +9,8 @@
 3. در صورت فعال بودن `EnableWebSearch`، مدل برای تحقیق درباره خبرهای تازه از ابزار جست‌وجوی وب استفاده می‌کند.
 4. مقاله تولیدشده به سرویس ساخت تصویر داده می‌شود.
 5. چند تصویر هماهنگ برای کاروسل اینستاگرام با OpenAI Image API ساخته می‌شوند.
-6. مقاله و تصاویر در یک پوشه زمان‌دار داخل مسیر خروجی ذخیره می‌شوند.
+6. مقاله شامل عنوان، بدنه HTML و کپشن اینستاگرام به‌صورت ساخت‌یافته دریافت می‌شود.
+7. مقاله و تصاویر روی دیسک Worker ذخیره نمی‌شوند و مستقیماً به سرویس‌های انتشار داده می‌شوند.
 
 ## تنظیم کلید API
 
@@ -34,8 +35,7 @@ export OPENAI_API_KEY="your-api-key"
     "ImageCount": 4,
     "ImageSize": "1024x1024",
     "ImageQuality": "medium",
-    "PromptFilePath": "prompts/article-news-fa.md",
-    "OutputDirectory": "output"
+    "PromptFilePath": "prompts/article-news-fa.md"
   }
 }
 ```
@@ -52,18 +52,12 @@ src/ContentProducer.Worker/prompts/article-news-fa.md
 
 این فایل هنگام Build و Publish همراه برنامه کپی می‌شود و می‌توان آن را روی هاست بدون تغییر کد ویرایش کرد.
 
-## خروجی
+## خروجی ساخت‌یافته مقاله
 
-هر اجرا پوشه‌ای شبیه نمونه زیر می‌سازد:
+پرامپ باید خروجی JSON با فیلدهای زیر تولید کند:
 
-```text
-output/
-  20260603-080000/
-    article.md
-    carousel-01.png
-    carousel-02.png
-    carousel-03.png
-    carousel-04.png
-```
+- `title`: عنوان پست وردپرس
+- `articleHtml`: بدنه HTML مقاله برای وردپرس
+- `instagramCaption`: خلاصه چند خطی مناسب کپشن اینستاگرام
 
-ارسال مقاله به وردپرس و تصاویر به Instagram Graph API در مرحله بعدی اضافه خواهد شد.
+تصاویر در حافظه برنامه نگهداری می‌شوند و مستقیماً به Media Library وردپرس آپلود می‌شوند.

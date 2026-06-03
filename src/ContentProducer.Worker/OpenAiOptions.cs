@@ -23,6 +23,4 @@ public sealed class OpenAiOptions
     public string ImageQuality { get; init; } = "medium";
 
     public string PromptFilePath { get; init; } = "prompts/article-news-fa.md";
-
-    public string OutputDirectory { get; init; } = "output";
 }

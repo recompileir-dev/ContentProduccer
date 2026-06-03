@@ -16,6 +16,7 @@
 - [معماری پیشنهادی](./architecture.md)
 - [جریان تولید و انتشار محتوا](./content-workflow.md)
 - [تولید مقاله و تصاویر با OpenAI](./openai-content-generation.md)
+- [انتشار خودکار در وردپرس و اینستاگرام](./publishing.md)
 - [نقشه راه توسعه](./roadmap.md)
 
 ## اصول اولیه

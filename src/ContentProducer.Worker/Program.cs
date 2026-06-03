@@ -7,6 +7,10 @@ IHost host = Host.CreateDefaultBuilder(args)
             context.Configuration.GetSection(SchedulerOptions.SectionName));
         services.Configure<OpenAiOptions>(
             context.Configuration.GetSection(OpenAiOptions.SectionName));
+        services.Configure<WordPressOptions>(
+            context.Configuration.GetSection(WordPressOptions.SectionName));
+        services.Configure<InstagramOptions>(
+            context.Configuration.GetSection(InstagramOptions.SectionName));
 
         services.AddSingleton(sp =>
         {
@@ -22,6 +26,8 @@ IHost host = Host.CreateDefaultBuilder(args)
         services.AddSingleton<OpenAiApiClient>();
         services.AddSingleton<IOpenAiArticleService, OpenAiArticleService>();
         services.AddSingleton<IOpenAiImageService, OpenAiImageService>();
+        services.AddSingleton<IWordPressPublisherService, WordPressPublisherService>();
+        services.AddSingleton<IInstagramPublisherService, InstagramPublisherService>();
         services.AddSingleton<IContentProductionService, ContentProductionService>();
         services.AddHostedService<SchedulerAgent>();
     })

@@ -3,6 +3,6 @@ namespace ContentProducer.Worker;
 public interface IOpenAiImageService
 {
     Task<IReadOnlyList<GeneratedImage>> GenerateCarouselImagesAsync(
-        string article,
+        GeneratedArticle article,
         CancellationToken cancellationToken);
 }

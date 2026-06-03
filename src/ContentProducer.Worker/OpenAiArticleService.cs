@@ -19,7 +19,7 @@ public sealed class OpenAiArticleService : IOpenAiArticleService
         _options = options.Value;
     }
 
-    public async Task<string> GenerateArticleAsync(
+    public async Task<GeneratedArticle> GenerateArticleAsync(
         string prompt,
         CancellationToken cancellationToken)
     {
@@ -28,17 +28,41 @@ public sealed class OpenAiArticleService : IOpenAiArticleService
             _options.ArticleModel,
             _options.EnableWebSearch);
 
+        object textFormat = new
+        {
+            format = new
+            {
+                type = "json_schema",
+                name = "generated_article",
+                strict = true,
+                schema = new
+                {
+                    type = "object",
+                    properties = new
+                    {
+                        title = new { type = "string" },
+                        articleHtml = new { type = "string" },
+                        instagramCaption = new { type = "string" }
+                    },
+                    required = new[] { "title", "articleHtml", "instagramCaption" },
+                    additionalProperties = false
+                }
+            }
+        };
+
         object body = _options.EnableWebSearch
             ? new
             {
                 model = _options.ArticleModel,
                 input = prompt,
-                tools = new[] { new { type = "web_search" } }
+                tools = new[] { new { type = "web_search" } },
+                text = textFormat
             }
             : new
             {
                 model = _options.ArticleModel,
-                input = prompt
+                input = prompt,
+                text = textFormat
             };
 
         using JsonDocument response = await _apiClient.PostAsync(
@@ -46,14 +70,54 @@ public sealed class OpenAiArticleService : IOpenAiArticleService
             body,
             cancellationToken);
 
-        string article = ExtractOutputText(response.RootElement);
+        string outputText = ExtractOutputText(response.RootElement);
 
-        if (string.IsNullOrWhiteSpace(article))
+        if (string.IsNullOrWhiteSpace(outputText))
         {
             throw new InvalidOperationException("OpenAI Responses API returned no article text.");
         }
 
+        return ParseArticle(outputText);
+    }
+
+    private static GeneratedArticle ParseArticle(string outputText)
+    {
+        string json = RemoveMarkdownCodeFence(outputText);
+
+        GeneratedArticle? article = JsonSerializer.Deserialize<GeneratedArticle>(
+            json,
+            new JsonSerializerOptions(JsonSerializerDefaults.Web));
+
+        if (article is null ||
+            string.IsNullOrWhiteSpace(article.Title) ||
+            string.IsNullOrWhiteSpace(article.ArticleHtml) ||
+            string.IsNullOrWhiteSpace(article.InstagramCaption))
+        {
+            throw new InvalidOperationException(
+                "OpenAI article response must contain title, articleHtml, and instagramCaption.");
+        }
+
         return article;
+    }
+
+    private static string RemoveMarkdownCodeFence(string text)
+    {
+        string trimmed = text.Trim();
+
+        if (!trimmed.StartsWith("```", StringComparison.Ordinal))
+        {
+            return trimmed;
+        }
+
+        int firstNewLine = trimmed.IndexOf('\n');
+        int lastFence = trimmed.LastIndexOf("```", StringComparison.Ordinal);
+
+        if (firstNewLine < 0 || lastFence <= firstNewLine)
+        {
+            return trimmed;
+        }
+
+        return trimmed.Substring(firstNewLine + 1, lastFence - firstNewLine - 1).Trim();
     }
 
     private static string ExtractOutputText(JsonElement root)

@@ -4,19 +4,25 @@ public sealed class ContentProductionService : IContentProductionService
 {
     private readonly IOpenAiArticleService _articleService;
     private readonly IOpenAiImageService _imageService;
+    private readonly IInstagramPublisherService _instagramPublisherService;
     private readonly IHostEnvironment _hostEnvironment;
     private readonly ILogger<ContentProductionService> _logger;
     private readonly OpenAiOptions _options;
+    private readonly IWordPressPublisherService _wordPressPublisherService;
 
     public ContentProductionService(
         IOpenAiArticleService articleService,
         IOpenAiImageService imageService,
+        IInstagramPublisherService instagramPublisherService,
+        IWordPressPublisherService wordPressPublisherService,
         IHostEnvironment hostEnvironment,
         Microsoft.Extensions.Options.IOptions<OpenAiOptions> options,
         ILogger<ContentProductionService> logger)
     {
         _articleService = articleService;
         _imageService = imageService;
+        _instagramPublisherService = instagramPublisherService;
+        _wordPressPublisherService = wordPressPublisherService;
         _hostEnvironment = hostEnvironment;
         _logger = logger;
         _options = options.Value;
@@ -29,35 +35,36 @@ public sealed class ContentProductionService : IContentProductionService
             DateTimeOffset.Now);
 
         string promptPath = ResolvePath(_options.PromptFilePath);
-        string outputDirectory = ResolvePath(_options.OutputDirectory);
-        string runDirectory = Path.Combine(
-            outputDirectory,
-            DateTimeOffset.Now.ToString("yyyyMMdd-HHmmss"));
-
         string prompt = await File.ReadAllTextAsync(promptPath, cancellationToken);
-        string article = await _articleService.GenerateArticleAsync(prompt, cancellationToken);
+        GeneratedArticle article =
+            await _articleService.GenerateArticleAsync(prompt, cancellationToken);
         IReadOnlyList<GeneratedImage> images =
             await _imageService.GenerateCarouselImagesAsync(article, cancellationToken);
 
-        Directory.CreateDirectory(runDirectory);
-        await File.WriteAllTextAsync(
-            Path.Combine(runDirectory, "article.md"),
-            article,
-            cancellationToken);
+        IReadOnlyList<WordPressMedia> media =
+            await _wordPressPublisherService.UploadImagesAsync(
+                article,
+                images,
+                cancellationToken);
 
-        foreach (GeneratedImage image in images)
+        if (media.Count == 0)
         {
-            string imagePath = Path.Combine(
-                runDirectory,
-                $"carousel-{image.SlideNumber:00}.png");
-
-            await File.WriteAllBytesAsync(imagePath, image.Content, cancellationToken);
+            throw new InvalidOperationException("No images were uploaded to WordPress.");
         }
 
+        await _wordPressPublisherService.PublishPostAsync(
+            article,
+            media[0],
+            cancellationToken);
+
+        await _instagramPublisherService.PublishCarouselAsync(
+            article.InstagramCaption,
+            media.Select(item => item.SourceUrl).ToArray(),
+            cancellationToken);
+
         _logger.LogInformation(
-            "Content production service completed at {CompletedAt}. Output: {OutputDirectory}.",
-            DateTimeOffset.Now,
-            runDirectory);
+            "Content production service completed at {CompletedAt}.",
+            DateTimeOffset.Now);
     }
 
     private string ResolvePath(string path)

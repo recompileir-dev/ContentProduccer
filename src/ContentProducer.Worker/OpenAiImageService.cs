@@ -20,7 +20,7 @@ public sealed class OpenAiImageService : IOpenAiImageService
     }
 
     public async Task<IReadOnlyList<GeneratedImage>> GenerateCarouselImagesAsync(
-        string article,
+        GeneratedArticle article,
         CancellationToken cancellationToken)
     {
         if (_options.ImageCount < 1)
@@ -59,7 +59,10 @@ public sealed class OpenAiImageService : IOpenAiImageService
         return images;
     }
 
-    private static string BuildImagePrompt(string article, int slideNumber, int imageCount)
+    private static string BuildImagePrompt(
+        GeneratedArticle article,
+        int slideNumber,
+        int imageCount)
     {
         return string.Join(
             Environment.NewLine,
@@ -73,8 +76,11 @@ public sealed class OpenAiImageService : IOpenAiImageService
             "- Do not include logos, watermarks, UI elements, or readable text.",
             "- Each slide must be visually distinct while clearly belonging to the same carousel.",
             string.Empty,
+            "Title:",
+            article.Title,
+            string.Empty,
             "Article:",
-            article);
+            article.ArticleHtml);
     }
 
     private static string ExtractBase64Image(JsonElement root)
