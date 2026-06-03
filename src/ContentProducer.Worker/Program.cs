@@ -2,9 +2,11 @@ using ContentProducer.Worker;
 
 bool runOnce = args.Any(arg => string.Equals(arg, "run-once", StringComparison.OrdinalIgnoreCase));
 bool skipInstagram = args.Any(arg => string.Equals(arg, "--skip-instagram", StringComparison.OrdinalIgnoreCase));
+bool skipTelegram = args.Any(arg => string.Equals(arg, "--skip-telegram", StringComparison.OrdinalIgnoreCase));
 string[] hostArgs = args
     .Where(arg => !string.Equals(arg, "run-once", StringComparison.OrdinalIgnoreCase))
     .Where(arg => !string.Equals(arg, "--skip-instagram", StringComparison.OrdinalIgnoreCase))
+    .Where(arg => !string.Equals(arg, "--skip-telegram", StringComparison.OrdinalIgnoreCase))
     .ToArray();
 
 IHost host = Host.CreateDefaultBuilder(hostArgs)
@@ -15,6 +17,14 @@ IHost host = Host.CreateDefaultBuilder(hostArgs)
             configuration.AddInMemoryCollection(new Dictionary<string, string?>
             {
                 [$"{PublishingOptions.SectionName}:PublishToInstagram"] = "false"
+            });
+        }
+
+        if (skipTelegram)
+        {
+            configuration.AddInMemoryCollection(new Dictionary<string, string?>
+            {
+                [$"{PublishingOptions.SectionName}:PublishToTelegram"] = "false"
             });
         }
     })
@@ -28,6 +38,8 @@ IHost host = Host.CreateDefaultBuilder(hostArgs)
             context.Configuration.GetSection(WordPressOptions.SectionName));
         services.Configure<InstagramOptions>(
             context.Configuration.GetSection(InstagramOptions.SectionName));
+        services.Configure<TelegramOptions>(
+            context.Configuration.GetSection(TelegramOptions.SectionName));
         services.Configure<PublishingOptions>(
             context.Configuration.GetSection(PublishingOptions.SectionName));
 
@@ -47,6 +59,7 @@ IHost host = Host.CreateDefaultBuilder(hostArgs)
         services.AddSingleton<IOpenAiImageService, OpenAiImageService>();
         services.AddSingleton<IWordPressPublisherService, WordPressPublisherService>();
         services.AddSingleton<IInstagramPublisherService, InstagramPublisherService>();
+        services.AddSingleton<ITelegramPublisherService, TelegramPublisherService>();
         services.AddSingleton<IContentProductionService, ContentProductionService>();
 
         if (!runOnce)

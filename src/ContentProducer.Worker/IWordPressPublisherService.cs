@@ -7,7 +7,7 @@ public interface IWordPressPublisherService
         IReadOnlyList<GeneratedImage> images,
         CancellationToken cancellationToken);
 
-    Task PublishPostAsync(
+    Task<WordPressPost> PublishPostAsync(
         GeneratedArticle article,
         WordPressMedia featuredImage,
         CancellationToken cancellationToken);

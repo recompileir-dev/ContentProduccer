@@ -16,6 +16,7 @@ a configured time every day.
 - Uploads generated images directly to the WordPress Media Library
 - Publishes the article to WordPress with the first image as featured media
 - Publishes the generated images as an Instagram carousel
+- Publishes the generated images and summary to a Telegram channel
 - Uses the generated Instagram caption without saving article or image files locally
 
 This version does not use a database, distributed lock, retry policy, or
@@ -56,15 +57,16 @@ Configure OpenAI models, prompt path, and image count in
 }
 ```
 
-Set WordPress and Instagram secrets as environment variables:
+Set WordPress, Instagram, and Telegram secrets as environment variables:
 
 ```bash
 export WORDPRESS_APPLICATION_PASSWORD="your-wordpress-application-password"
 export INSTAGRAM_ACCESS_TOKEN="your-instagram-access-token"
+export TELEGRAM_BOT_TOKEN="your-telegram-bot-token"
 ```
 
-Then configure the WordPress site, username, Instagram User ID, and Graph API
-version in `appsettings.json`.
+Then configure the WordPress site, username, Instagram User ID, Telegram channel
+chat ID, and Graph API version in `appsettings.json`.
 
 Then run:
 
@@ -87,7 +89,7 @@ dotnet run --project src/ContentProducer.Worker -- run-once
 To test only OpenAI and WordPress while leaving Instagram for later:
 
 ```bash
-dotnet run --project src/ContentProducer.Worker -- run-once --skip-instagram
+dotnet run --project src/ContentProducer.Worker -- run-once --skip-instagram --skip-telegram
 ```
 
 For this mode, set only these secrets:
@@ -102,7 +104,7 @@ On Windows PowerShell:
 ```powershell
 $env:OPENAI_API_KEY="your-api-key"
 $env:WORDPRESS_APPLICATION_PASSWORD="your-wordpress-application-password"
-dotnet run --project src/ContentProducer.Worker -- run-once --skip-instagram
+dotnet run --project src/ContentProducer.Worker -- run-once --skip-instagram --skip-telegram
 ```
 
 More project documentation is available in [docs](./docs/README.md).

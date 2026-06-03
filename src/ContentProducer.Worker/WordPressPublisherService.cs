@@ -61,7 +61,7 @@ public sealed class WordPressPublisherService : IWordPressPublisherService
         return mediaItems;
     }
 
-    public async Task PublishPostAsync(
+    public async Task<WordPressPost> PublishPostAsync(
         GeneratedArticle article,
         WordPressMedia featuredImage,
         CancellationToken cancellationToken)
@@ -86,7 +86,17 @@ public sealed class WordPressPublisherService : IWordPressPublisherService
         string responseBody = await response.Content.ReadAsStringAsync(cancellationToken);
         EnsureSuccess(response, responseBody, "publish WordPress post");
 
-        _logger.LogInformation("Published WordPress post with title {Title}.", article.Title);
+        using JsonDocument document = JsonDocument.Parse(responseBody);
+        int postId = document.RootElement.GetProperty("id").GetInt32();
+        string postLink = document.RootElement.GetProperty("link").GetString()
+            ?? throw new InvalidOperationException("WordPress post response has no link.");
+
+        _logger.LogInformation(
+            "Published WordPress post {PostId} with title {Title}.",
+            postId,
+            article.Title);
+
+        return new WordPressPost(postId, postLink);
     }
 
     private static HttpClient CreateHttpClient(WordPressOptions options)

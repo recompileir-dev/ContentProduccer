@@ -7,4 +7,6 @@ public sealed class PublishingOptions
     public bool PublishToWordPress { get; init; } = true;
 
     public bool PublishToInstagram { get; init; } = true;
+
+    public bool PublishToTelegram { get; init; } = true;
 }

@@ -1,41 +1,45 @@
-# انتشار خودکار در وردپرس و اینستاگرام
+# Automatic Publishing
 
-## جریان انتشار
+## Flow
 
-1. مقاله و کپشن اینستاگرام از OpenAI دریافت می‌شوند.
-2. تصاویر کاروسل در حافظه برنامه تولید می‌شوند.
-3. همه تصاویر مستقیماً به Media Library وردپرس آپلود می‌شوند.
-4. مقاله وردپرس با تصویر اول به‌عنوان Featured Image منتشر می‌شود.
-5. URL عمومی تصاویر وردپرس برای ساخت Media Containerهای اینستاگرام استفاده می‌شوند.
-6. تصاویر به‌صورت کاروسل همراه کپشن تولیدشده در اینستاگرام منتشر می‌شوند.
+1. OpenAI generates the article, Instagram-style summary, and carousel images.
+2. Images are kept in memory and are not written to the Worker disk.
+3. Images are uploaded directly to the WordPress Media Library.
+4. The WordPress post is published with the first image as featured media.
+5. The WordPress post link is read from the WordPress REST API response.
+6. Instagram receives the generated images as a carousel.
+7. Instagram caption contains the summary and the original WordPress post URL.
+8. Telegram receives the generated images, summary, and original WordPress post link.
 
-فایل مقاله و تصاویر روی دیسک Worker ذخیره نمی‌شوند. با این حال تصاویر در Media Library وردپرس باقی می‌مانند، چون Instagram Graph API برای دریافت تصاویر به URL عمومی نیاز دارد.
+The Worker does not save article or image files locally. WordPress Media Library
+is used as the public image host because Instagram and Telegram need externally
+reachable image URLs.
 
-## اجرای تستی بدون Scheduler
+## Manual Test Without Scheduler
 
-برای اجرای یک‌باره کل جریان:
+Run the full workflow once:
 
 ```bash
 dotnet run --project src/ContentProducer.Worker -- run-once
 ```
 
-برای تست فقط OpenAI و WordPress و رد کردن Instagram:
+Run only OpenAI and WordPress, skipping Instagram and Telegram:
 
 ```bash
-dotnet run --project src/ContentProducer.Worker -- run-once --skip-instagram
+dotnet run --project src/ContentProducer.Worker -- run-once --skip-instagram --skip-telegram
 ```
 
-در حالت دوم نیازی به `INSTAGRAM_ACCESS_TOKEN` نیست.
+In this mode, `INSTAGRAM_ACCESS_TOKEN` and `TELEGRAM_BOT_TOKEN` are not needed.
 
-در ویندوز PowerShell:
+PowerShell example:
 
 ```powershell
 $env:OPENAI_API_KEY="your-api-key"
 $env:WORDPRESS_APPLICATION_PASSWORD="your-wordpress-application-password"
-dotnet run --project src/ContentProducer.Worker -- run-once --skip-instagram
+dotnet run --project src/ContentProducer.Worker -- run-once --skip-instagram --skip-telegram
 ```
 
-## تنظیمات وردپرس
+## WordPress Settings
 
 ```json
 {
@@ -48,15 +52,16 @@ dotnet run --project src/ContentProducer.Worker -- run-once --skip-instagram
 }
 ```
 
-در پنل وردپرس برای کاربری که اجازه آپلود رسانه و انتشار نوشته دارد، یک Application Password بسازید. سپس آن را روی هاست به‌صورت متغیر محیطی تنظیم کنید:
+Create a WordPress Application Password for a user that can upload media and
+publish posts. Set it on the host:
 
 ```bash
 export WORDPRESS_APPLICATION_PASSWORD="your-wordpress-application-password"
 ```
 
-سایت وردپرس باید HTTPS داشته باشد و REST API آن در دسترس باشد.
+The WordPress site must use HTTPS and expose the REST API.
 
-## تنظیمات اینستاگرام
+## Instagram Settings
 
 ```json
 {
@@ -69,17 +74,51 @@ export WORDPRESS_APPLICATION_PASSWORD="your-wordpress-application-password"
 }
 ```
 
-توکن دسترسی را روی هاست تنظیم کنید:
+Set the access token on the host:
 
 ```bash
 export INSTAGRAM_ACCESS_TOKEN="your-instagram-access-token"
 ```
 
-حساب اینستاگرام باید شرایط انتشار از طریق API رسمی متا را داشته باشد و توکن باید مجوزهای لازم برای انتشار محتوا را داشته باشد. نسخه Graph API قابل تنظیم است و باید با نسخه فعال برنامه متا هماهنگ شود.
+The Instagram account must be eligible for publishing through the official Meta
+API. The access token must include the permissions required for content
+publishing.
 
-## نکات عملی
+## Telegram Settings
 
-- URL تصاویر وردپرس باید از اینترنت و بدون احراز هویت قابل دسترسی باشد.
-- تعداد تصاویر کاروسل باید حداقل دو عدد باشد.
-- سرویس پیش از انتشار کاروسل، آماده‌شدن Media Containerهای متا را بررسی می‌کند.
-- کلیدها و توکن‌ها نباید داخل Git ثبت شوند.
+```json
+{
+  "Telegram": {
+    "BotApiBaseUrl": "https://api.telegram.org/",
+    "BotTokenEnvironmentVariable": "TELEGRAM_BOT_TOKEN",
+    "ChannelChatId": "@your-channel-username"
+  }
+}
+```
+
+Create a bot token:
+
+1. Open Telegram and message `@BotFather`.
+2. Run `/newbot`.
+3. Choose the bot display name and username.
+4. Copy the generated bot token.
+
+Set the token on the host:
+
+```bash
+export TELEGRAM_BOT_TOKEN="your-telegram-bot-token"
+```
+
+Add the bot to the target channel and allow it to post messages. `ChannelChatId`
+can be a public channel username such as `@recompile_ir` or a numeric channel
+ID.
+
+If there is one image, the service uses `sendPhoto`. If there are multiple
+images, it uses `sendMediaGroup` and puts the caption on the first image.
+
+## Practical Notes
+
+- WordPress media URLs must be publicly reachable without authentication.
+- Instagram carousel publishing requires between 2 and 10 images.
+- Telegram media groups support up to 10 images.
+- Tokens and application passwords must not be committed to Git.

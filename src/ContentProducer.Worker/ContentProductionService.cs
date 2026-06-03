@@ -9,12 +9,14 @@ public sealed class ContentProductionService : IContentProductionService
     private readonly ILogger<ContentProductionService> _logger;
     private readonly OpenAiOptions _options;
     private readonly PublishingOptions _publishingOptions;
+    private readonly ITelegramPublisherService _telegramPublisherService;
     private readonly IWordPressPublisherService _wordPressPublisherService;
 
     public ContentProductionService(
         IOpenAiArticleService articleService,
         IOpenAiImageService imageService,
         IInstagramPublisherService instagramPublisherService,
+        ITelegramPublisherService telegramPublisherService,
         IWordPressPublisherService wordPressPublisherService,
         IHostEnvironment hostEnvironment,
         Microsoft.Extensions.Options.IOptions<OpenAiOptions> options,
@@ -24,6 +26,7 @@ public sealed class ContentProductionService : IContentProductionService
         _articleService = articleService;
         _imageService = imageService;
         _instagramPublisherService = instagramPublisherService;
+        _telegramPublisherService = telegramPublisherService;
         _wordPressPublisherService = wordPressPublisherService;
         _hostEnvironment = hostEnvironment;
         _logger = logger;
@@ -60,21 +63,41 @@ public sealed class ContentProductionService : IContentProductionService
             throw new InvalidOperationException("No images were uploaded to WordPress.");
         }
 
-        await _wordPressPublisherService.PublishPostAsync(
+        WordPressPost wordPressPost = await _wordPressPublisherService.PublishPostAsync(
             article,
             media[0],
             cancellationToken);
 
+        string instagramCaption = SocialCaptionFormatter.BuildInstagramCaption(
+            article,
+            wordPressPost.Link);
+        string telegramCaption = SocialCaptionFormatter.BuildTelegramCaption(
+            article,
+            wordPressPost.Link);
+        string[] imageUrls = media.Select(item => item.SourceUrl).ToArray();
+
         if (_publishingOptions.PublishToInstagram)
         {
             await _instagramPublisherService.PublishCarouselAsync(
-                article.InstagramCaption,
-                media.Select(item => item.SourceUrl).ToArray(),
+                instagramCaption,
+                imageUrls,
                 cancellationToken);
         }
         else
         {
             _logger.LogInformation("Instagram publishing is disabled.");
+        }
+
+        if (_publishingOptions.PublishToTelegram)
+        {
+            await _telegramPublisherService.PublishPostAsync(
+                telegramCaption,
+                imageUrls,
+                cancellationToken);
+        }
+        else
+        {
+            _logger.LogInformation("Telegram publishing is disabled.");
         }
 
         _logger.LogInformation(
