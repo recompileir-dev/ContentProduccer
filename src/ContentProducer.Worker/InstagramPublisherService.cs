@@ -8,7 +8,6 @@ public sealed class InstagramPublisherService : IInstagramPublisherService
     private readonly HttpClient _httpClient;
     private readonly InstagramOptions _options;
     private readonly ILogger<InstagramPublisherService> _logger;
-    private readonly string _accessToken;
 
     public InstagramPublisherService(
         IOptions<InstagramOptions> options,
@@ -16,7 +15,6 @@ public sealed class InstagramPublisherService : IInstagramPublisherService
     {
         _options = options.Value;
         _logger = logger;
-        _accessToken = GetAccessToken(_options);
         _httpClient = new HttpClient
         {
             BaseAddress = new Uri(_options.GraphApiBaseUrl.TrimEnd('/') + "/"),
@@ -29,6 +27,8 @@ public sealed class InstagramPublisherService : IInstagramPublisherService
         IReadOnlyList<string> imageUrls,
         CancellationToken cancellationToken)
     {
+        string accessToken = GetAccessToken(_options);
+
         if (imageUrls.Count < 2 || imageUrls.Count > 10)
         {
             throw new InvalidOperationException(
@@ -40,6 +40,7 @@ public sealed class InstagramPublisherService : IInstagramPublisherService
         foreach (string imageUrl in imageUrls)
         {
             string childId = await CreateMediaContainerAsync(
+                accessToken,
                 new Dictionary<string, string>
                 {
                     ["image_url"] = imageUrl,
@@ -48,10 +49,11 @@ public sealed class InstagramPublisherService : IInstagramPublisherService
                 cancellationToken);
 
             childContainerIds.Add(childId);
-            await WaitForContainerAsync(childId, cancellationToken);
+            await WaitForContainerAsync(childId, accessToken, cancellationToken);
         }
 
         string carouselId = await CreateMediaContainerAsync(
+            accessToken,
             new Dictionary<string, string>
             {
                 ["media_type"] = "CAROUSEL",
@@ -60,14 +62,14 @@ public sealed class InstagramPublisherService : IInstagramPublisherService
             },
             cancellationToken);
 
-        await WaitForContainerAsync(carouselId, cancellationToken);
+        await WaitForContainerAsync(carouselId, accessToken, cancellationToken);
 
         await PostFormAsync(
             $"{ApiPath()}/media_publish",
             new Dictionary<string, string>
             {
                 ["creation_id"] = carouselId,
-                ["access_token"] = _accessToken
+                ["access_token"] = accessToken
             },
             cancellationToken);
 
@@ -77,10 +79,11 @@ public sealed class InstagramPublisherService : IInstagramPublisherService
     }
 
     private async Task<string> CreateMediaContainerAsync(
+        string accessToken,
         Dictionary<string, string> values,
         CancellationToken cancellationToken)
     {
-        values["access_token"] = _accessToken;
+        values["access_token"] = accessToken;
         using JsonDocument response = await PostFormAsync(
             $"{ApiPath()}/media",
             values,
@@ -112,13 +115,14 @@ public sealed class InstagramPublisherService : IInstagramPublisherService
 
     private async Task WaitForContainerAsync(
         string containerId,
+        string accessToken,
         CancellationToken cancellationToken)
     {
         for (int attempt = 1; attempt <= 10; attempt++)
         {
             string relativeUrl =
                 $"{_options.GraphApiVersion.Trim('/')}/{containerId}" +
-                $"?fields=status_code&access_token={Uri.EscapeDataString(_accessToken)}";
+                $"?fields=status_code&access_token={Uri.EscapeDataString(accessToken)}";
 
             using HttpResponseMessage response =
                 await _httpClient.GetAsync(relativeUrl, cancellationToken);

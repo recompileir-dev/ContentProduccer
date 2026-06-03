@@ -8,6 +8,7 @@ public sealed class ContentProductionService : IContentProductionService
     private readonly IHostEnvironment _hostEnvironment;
     private readonly ILogger<ContentProductionService> _logger;
     private readonly OpenAiOptions _options;
+    private readonly PublishingOptions _publishingOptions;
     private readonly IWordPressPublisherService _wordPressPublisherService;
 
     public ContentProductionService(
@@ -17,6 +18,7 @@ public sealed class ContentProductionService : IContentProductionService
         IWordPressPublisherService wordPressPublisherService,
         IHostEnvironment hostEnvironment,
         Microsoft.Extensions.Options.IOptions<OpenAiOptions> options,
+        Microsoft.Extensions.Options.IOptions<PublishingOptions> publishingOptions,
         ILogger<ContentProductionService> logger)
     {
         _articleService = articleService;
@@ -26,6 +28,7 @@ public sealed class ContentProductionService : IContentProductionService
         _hostEnvironment = hostEnvironment;
         _logger = logger;
         _options = options.Value;
+        _publishingOptions = publishingOptions.Value;
     }
 
     public async Task RunAsync(CancellationToken cancellationToken)
@@ -41,11 +44,16 @@ public sealed class ContentProductionService : IContentProductionService
         IReadOnlyList<GeneratedImage> images =
             await _imageService.GenerateCarouselImagesAsync(article, cancellationToken);
 
-        IReadOnlyList<WordPressMedia> media =
-            await _wordPressPublisherService.UploadImagesAsync(
-                article,
-                images,
-                cancellationToken);
+        if (!_publishingOptions.PublishToWordPress)
+        {
+            _logger.LogInformation("WordPress publishing is disabled.");
+            return;
+        }
+
+        IReadOnlyList<WordPressMedia> media = await _wordPressPublisherService.UploadImagesAsync(
+            article,
+            images,
+            cancellationToken);
 
         if (media.Count == 0)
         {
@@ -57,10 +65,17 @@ public sealed class ContentProductionService : IContentProductionService
             media[0],
             cancellationToken);
 
-        await _instagramPublisherService.PublishCarouselAsync(
-            article.InstagramCaption,
-            media.Select(item => item.SourceUrl).ToArray(),
-            cancellationToken);
+        if (_publishingOptions.PublishToInstagram)
+        {
+            await _instagramPublisherService.PublishCarouselAsync(
+                article.InstagramCaption,
+                media.Select(item => item.SourceUrl).ToArray(),
+                cancellationToken);
+        }
+        else
+        {
+            _logger.LogInformation("Instagram publishing is disabled.");
+        }
 
         _logger.LogInformation(
             "Content production service completed at {CompletedAt}.",

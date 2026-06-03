@@ -1,6 +1,23 @@
 using ContentProducer.Worker;
 
-IHost host = Host.CreateDefaultBuilder(args)
+bool runOnce = args.Any(arg => string.Equals(arg, "run-once", StringComparison.OrdinalIgnoreCase));
+bool skipInstagram = args.Any(arg => string.Equals(arg, "--skip-instagram", StringComparison.OrdinalIgnoreCase));
+string[] hostArgs = args
+    .Where(arg => !string.Equals(arg, "run-once", StringComparison.OrdinalIgnoreCase))
+    .Where(arg => !string.Equals(arg, "--skip-instagram", StringComparison.OrdinalIgnoreCase))
+    .ToArray();
+
+IHost host = Host.CreateDefaultBuilder(hostArgs)
+    .ConfigureAppConfiguration(configuration =>
+    {
+        if (skipInstagram)
+        {
+            configuration.AddInMemoryCollection(new Dictionary<string, string?>
+            {
+                [$"{PublishingOptions.SectionName}:PublishToInstagram"] = "false"
+            });
+        }
+    })
     .ConfigureServices((context, services) =>
     {
         services.Configure<SchedulerOptions>(
@@ -11,6 +28,8 @@ IHost host = Host.CreateDefaultBuilder(args)
             context.Configuration.GetSection(WordPressOptions.SectionName));
         services.Configure<InstagramOptions>(
             context.Configuration.GetSection(InstagramOptions.SectionName));
+        services.Configure<PublishingOptions>(
+            context.Configuration.GetSection(PublishingOptions.SectionName));
 
         services.AddSingleton(sp =>
         {
@@ -29,8 +48,25 @@ IHost host = Host.CreateDefaultBuilder(args)
         services.AddSingleton<IWordPressPublisherService, WordPressPublisherService>();
         services.AddSingleton<IInstagramPublisherService, InstagramPublisherService>();
         services.AddSingleton<IContentProductionService, ContentProductionService>();
-        services.AddHostedService<SchedulerAgent>();
+
+        if (!runOnce)
+        {
+            services.AddHostedService<SchedulerAgent>();
+        }
     })
     .Build();
 
-await host.RunAsync();
+if (runOnce)
+{
+    await host.StartAsync();
+
+    IContentProductionService contentProductionService =
+        host.Services.GetRequiredService<IContentProductionService>();
+
+    await contentProductionService.RunAsync(CancellationToken.None);
+    await host.StopAsync();
+}
+else
+{
+    await host.RunAsync();
+}

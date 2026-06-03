@@ -11,6 +11,30 @@
 
 فایل مقاله و تصاویر روی دیسک Worker ذخیره نمی‌شوند. با این حال تصاویر در Media Library وردپرس باقی می‌مانند، چون Instagram Graph API برای دریافت تصاویر به URL عمومی نیاز دارد.
 
+## اجرای تستی بدون Scheduler
+
+برای اجرای یک‌باره کل جریان:
+
+```bash
+dotnet run --project src/ContentProducer.Worker -- run-once
+```
+
+برای تست فقط OpenAI و WordPress و رد کردن Instagram:
+
+```bash
+dotnet run --project src/ContentProducer.Worker -- run-once --skip-instagram
+```
+
+در حالت دوم نیازی به `INSTAGRAM_ACCESS_TOKEN` نیست.
+
+در ویندوز PowerShell:
+
+```powershell
+$env:OPENAI_API_KEY="your-api-key"
+$env:WORDPRESS_APPLICATION_PASSWORD="your-wordpress-application-password"
+dotnet run --project src/ContentProducer.Worker -- run-once --skip-instagram
+```
+
 ## تنظیمات وردپرس
 
 ```json

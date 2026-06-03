@@ -75,4 +75,34 @@ dotnet run --project src/ContentProducer.Worker
 Each run sends generated content directly to WordPress and Instagram. The
 WordPress Media Library provides public image URLs required by Instagram.
 
+## Local Test Without Scheduler
+
+To run the workflow once from the command line instead of waiting for the
+scheduler:
+
+```bash
+dotnet run --project src/ContentProducer.Worker -- run-once
+```
+
+To test only OpenAI and WordPress while leaving Instagram for later:
+
+```bash
+dotnet run --project src/ContentProducer.Worker -- run-once --skip-instagram
+```
+
+For this mode, set only these secrets:
+
+```bash
+export OPENAI_API_KEY="your-api-key"
+export WORDPRESS_APPLICATION_PASSWORD="your-wordpress-application-password"
+```
+
+On Windows PowerShell:
+
+```powershell
+$env:OPENAI_API_KEY="your-api-key"
+$env:WORDPRESS_APPLICATION_PASSWORD="your-wordpress-application-password"
+dotnet run --project src/ContentProducer.Worker -- run-once --skip-instagram
+```
+
 More project documentation is available in [docs](./docs/README.md).
