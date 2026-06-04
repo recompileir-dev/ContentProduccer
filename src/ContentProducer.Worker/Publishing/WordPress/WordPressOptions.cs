@@ -6,7 +6,8 @@ public sealed class WordPressOptions
 
     public string SiteUrl { get; init; } = string.Empty;
 
-    public string Username { get; init; } = string.Empty;
+    public string UsernameEnvironmentVariable { get; init; } =
+        "WORDPRESS_USERNAME";
 
     public string? ApplicationPassword { get; init; }
 

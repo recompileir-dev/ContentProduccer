@@ -173,11 +173,20 @@ public sealed class WordPressPublisherService : IWordPressPublisherService
 
     private static HttpClient CreateHttpClient(WordPressOptions options)
     {
-        if (string.IsNullOrWhiteSpace(options.SiteUrl) ||
-            string.IsNullOrWhiteSpace(options.Username))
+        if (string.IsNullOrWhiteSpace(options.SiteUrl))
         {
             throw new InvalidOperationException(
-                "WordPress:SiteUrl and WordPress:Username are required.");
+                "WordPress:SiteUrl is required.");
+        }
+
+        string? username = Environment.GetEnvironmentVariable(
+            options.UsernameEnvironmentVariable);
+
+        if (string.IsNullOrWhiteSpace(username))
+        {
+            throw new InvalidOperationException(
+                "WordPress username is missing. Set the " +
+                $"'{options.UsernameEnvironmentVariable}' environment variable.");
         }
 
         string? password = options.ApplicationPassword;
@@ -206,7 +215,7 @@ public sealed class WordPressPublisherService : IWordPressPublisherService
         client.DefaultRequestHeaders.UserAgent.ParseAdd("ContentProducer/1.0");
 
         string credentials = Convert.ToBase64String(
-            Encoding.UTF8.GetBytes($"{options.Username}:{password}"));
+            Encoding.UTF8.GetBytes($"{username.Trim()}:{password}"));
         client.DefaultRequestHeaders.Authorization =
             new AuthenticationHeaderValue("Basic", credentials);
 

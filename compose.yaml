@@ -15,6 +15,7 @@ services:
       TZ: ${TZ:-Asia/Tehran}
       OPENAI_API_KEY: ${OPENAI_API_KEY}
       GROQ_API_KEY: ${GROQ_API_KEY}
+      WORDPRESS_USERNAME: ${WORDPRESS_USERNAME}
       WORDPRESS_APPLICATION_PASSWORD: ${WORDPRESS_APPLICATION_PASSWORD}
       INSTAGRAM_ACCESS_TOKEN: ${INSTAGRAM_ACCESS_TOKEN}
       TELEGRAM_BOT_TOKEN: ${TELEGRAM_BOT_TOKEN}
@@ -35,7 +36,6 @@ services:
       Groq__MaxResearchCharacters: ${GROQ_MAX_RESEARCH_CHARACTERS:-12000}
       Groq__ContinueWithoutResearchOnFailure: ${GROQ_CONTINUE_WITHOUT_RESEARCH_ON_FAILURE:-true}
       WordPress__SiteUrl: ${WORDPRESS_SITE_URL}
-      WordPress__Username: ${WORDPRESS_USERNAME}
       WordPress__CategoryId: ${WORDPRESS_CATEGORY_ID}
       Instagram__InstagramUserId: ${INSTAGRAM_USER_ID}
       Telegram__ChannelChatId: ${TELEGRAM_CHANNEL_CHAT_ID}

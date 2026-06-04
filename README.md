@@ -115,6 +115,7 @@ dotnet run --project src/ContentProducer.Worker -- run-once --use-fixture --skip
 This tests WordPress and Telegram publishing. It requires only:
 
 ```bash
+export WORDPRESS_USERNAME="your-wordpress-username"
 export WORDPRESS_APPLICATION_PASSWORD="your-wordpress-application-password"
 export TELEGRAM_BOT_TOKEN="your-telegram-bot-token"
 ```
@@ -151,13 +152,14 @@ require media.
 Set publishing secrets as environment variables:
 
 ```bash
+export WORDPRESS_USERNAME="your-wordpress-username"
 export WORDPRESS_APPLICATION_PASSWORD="your-wordpress-application-password"
 export INSTAGRAM_ACCESS_TOKEN="your-instagram-access-token"
 export TELEGRAM_BOT_TOKEN="your-telegram-bot-token"
 ```
 
-Then configure the WordPress site, username, Instagram User ID, Telegram channel
-chat ID, and Graph API version in `appsettings.json`.
+Then configure the WordPress site, Instagram User ID, Telegram channel chat ID,
+and Graph API version in `appsettings.json`.
 
 Then run:
 
@@ -188,6 +190,7 @@ dotnet run --project src/ContentProducer.Worker -- run-once --skip-instagram --s
 For this mode, set only these secrets:
 
 ```bash
+export WORDPRESS_USERNAME="your-wordpress-username"
 export OPENAI_API_KEY="your-api-key"
 export WORDPRESS_APPLICATION_PASSWORD="your-wordpress-application-password"
 ```
@@ -196,6 +199,7 @@ On Windows PowerShell:
 
 ```powershell
 $env:OPENAI_API_KEY="your-api-key"
+$env:WORDPRESS_USERNAME="your-wordpress-username"
 $env:WORDPRESS_APPLICATION_PASSWORD="your-wordpress-application-password"
 dotnet run --project src/ContentProducer.Worker -- run-once --skip-instagram --skip-telegram
 ```

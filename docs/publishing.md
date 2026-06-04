@@ -41,8 +41,8 @@ dotnet run --project src/ContentProducer.Worker -- run-once --use-fixture --skip
 ```
 
 This command tests WordPress and Telegram publishing. It needs
-`WORDPRESS_APPLICATION_PASSWORD` and `TELEGRAM_BOT_TOKEN`, but it does not need
-`OPENAI_API_KEY`.
+`WORDPRESS_USERNAME`, `WORDPRESS_APPLICATION_PASSWORD`, and
+`TELEGRAM_BOT_TOKEN`, but it does not need `OPENAI_API_KEY`.
 
 Fixture providers can also be selected in `appsettings.json`:
 
@@ -63,6 +63,7 @@ PowerShell example:
 
 ```powershell
 $env:OPENAI_API_KEY="your-api-key"
+$env:WORDPRESS_USERNAME="your-wordpress-username"
 $env:WORDPRESS_APPLICATION_PASSWORD="your-wordpress-application-password"
 dotnet run --project src/ContentProducer.Worker -- run-once --skip-instagram --skip-telegram
 ```
@@ -73,7 +74,7 @@ dotnet run --project src/ContentProducer.Worker -- run-once --skip-instagram --s
 {
   "WordPress": {
     "SiteUrl": "https://example.com",
-    "Username": "wordpress-user",
+    "UsernameEnvironmentVariable": "WORDPRESS_USERNAME",
     "ApplicationPasswordEnvironmentVariable": "WORDPRESS_APPLICATION_PASSWORD",
     "PostStatus": "publish"
   }
@@ -81,9 +82,10 @@ dotnet run --project src/ContentProducer.Worker -- run-once --skip-instagram --s
 ```
 
 Create a WordPress Application Password for a user that can upload media and
-publish posts. Set it on the host:
+publish posts. Set the username and application password on the host:
 
 ```bash
+export WORDPRESS_USERNAME="your-wordpress-username"
 export WORDPRESS_APPLICATION_PASSWORD="your-wordpress-application-password"
 ```
 
