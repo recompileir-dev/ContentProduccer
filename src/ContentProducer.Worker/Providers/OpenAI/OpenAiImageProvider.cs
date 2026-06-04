@@ -3,24 +3,29 @@ using Microsoft.Extensions.Options;
 
 namespace ContentProducer.Worker;
 
-public sealed class OpenAiImageService : IOpenAiImageService
+public sealed class OpenAiImageProvider : IImageProvider
 {
     private readonly OpenAiApiClient _apiClient;
+    private readonly ContentGenerationOptions _contentGenerationOptions;
     private readonly IHostEnvironment _hostEnvironment;
-    private readonly ILogger<OpenAiImageService> _logger;
+    private readonly ILogger<OpenAiImageProvider> _logger;
     private readonly OpenAiOptions _options;
 
-    public OpenAiImageService(
+    public OpenAiImageProvider(
         OpenAiApiClient apiClient,
         IHostEnvironment hostEnvironment,
+        IOptions<ContentGenerationOptions> contentGenerationOptions,
         IOptions<OpenAiOptions> options,
-        ILogger<OpenAiImageService> logger)
+        ILogger<OpenAiImageProvider> logger)
     {
         _apiClient = apiClient;
         _hostEnvironment = hostEnvironment;
+        _contentGenerationOptions = contentGenerationOptions.Value;
         _logger = logger;
         _options = options.Value;
     }
+
+    public string Name => ProviderNames.OpenAi;
 
     public async Task<GeneratedImage> GenerateImageAsync(
         GeneratedArticle article,
@@ -30,7 +35,8 @@ public sealed class OpenAiImageService : IOpenAiImageService
             "Generating article image with OpenAI model {Model}.",
             _options.ImageModel);
 
-        string promptTemplatePath = ResolvePath(_options.ImagePromptFilePath);
+        string promptTemplatePath = ResolvePath(
+            _contentGenerationOptions.ImagePromptFilePath);
         string promptTemplate = await File.ReadAllTextAsync(
             promptTemplatePath,
             cancellationToken);

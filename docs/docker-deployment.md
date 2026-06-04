@@ -62,6 +62,7 @@ nano .env
 Replace every placeholder with the real value. Important settings:
 
 - `OPENAI_API_KEY`
+- `GROQ_API_KEY` when `LLM_PROVIDER=Groq`
 - `WORDPRESS_SITE_URL`
 - `WORDPRESS_USERNAME`
 - `WORDPRESS_APPLICATION_PASSWORD`
@@ -74,11 +75,21 @@ Replace every placeholder with the real value. Important settings:
 
 The `.env` file is ignored by Git. Do not commit, upload, or share it.
 
-For the full news workflow, keep:
+For the full news workflow with OpenAI, keep:
 
 ```dotenv
+LLM_PROVIDER=OpenAI
 OPENAI_ENABLE_WEB_SEARCH=true
-OPENAI_PROMPT_FILE_PATH=prompts/article-news-fa.md
+ARTICLE_PROMPT_FILE_PATH=prompts/article-news-fa.md
+```
+
+To generate articles with Groq and images with OpenAI:
+
+```dotenv
+LLM_PROVIDER=Groq
+IMAGE_PROVIDER=OpenAI
+GROQ_MODEL=groq/compound
+ARTICLE_PROMPT_FILE_PATH=prompts/article-news-fa.md
 ```
 
 To temporarily disable a publishing destination:
@@ -162,7 +173,8 @@ docker compose logs --tail=300 content-producer
 ## Notes
 
 - No inbound firewall port is required for this Worker.
-- The server must allow outbound HTTPS access to OpenAI, WordPress, Meta, and Telegram.
+- The server must allow outbound HTTPS access to the selected LLM provider,
+  OpenAI image generation, WordPress, Meta, and Telegram.
 - Keep the server clock and time zone correct. The scheduler uses
   `SCHEDULER_TIME_ZONE_ID`, while container logs use `TZ`.
 - Back up the `.env` file securely outside Git.

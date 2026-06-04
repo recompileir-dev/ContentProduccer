@@ -34,7 +34,10 @@ IHost host = Host.CreateDefaultBuilder(hostArgs)
         {
             configuration.AddInMemoryCollection(new Dictionary<string, string?>
             {
-                [$"{ContentSourceOptions.SectionName}:UseFixture"] = "true"
+                [$"{ContentGenerationOptions.SectionName}:LlmProvider"] =
+                    ProviderNames.Fixture,
+                [$"{ContentGenerationOptions.SectionName}:ImageProvider"] =
+                    ProviderNames.Fixture
             });
         }
     })
@@ -44,8 +47,12 @@ IHost host = Host.CreateDefaultBuilder(hostArgs)
             context.Configuration.GetSection(SchedulerOptions.SectionName));
         services.Configure<OpenAiOptions>(
             context.Configuration.GetSection(OpenAiOptions.SectionName));
-        services.Configure<ContentSourceOptions>(
-            context.Configuration.GetSection(ContentSourceOptions.SectionName));
+        services.Configure<GroqOptions>(
+            context.Configuration.GetSection(GroqOptions.SectionName));
+        services.Configure<FixtureOptions>(
+            context.Configuration.GetSection(FixtureOptions.SectionName));
+        services.Configure<ContentGenerationOptions>(
+            context.Configuration.GetSection(ContentGenerationOptions.SectionName));
         services.Configure<WordPressOptions>(
             context.Configuration.GetSection(WordPressOptions.SectionName));
         services.Configure<InstagramOptions>(
@@ -67,8 +74,12 @@ IHost host = Host.CreateDefaultBuilder(hostArgs)
             };
         });
         services.AddSingleton<OpenAiApiClient>();
-        services.AddSingleton<IOpenAiArticleService, OpenAiArticleService>();
-        services.AddSingleton<IOpenAiImageService, OpenAiImageService>();
+        services.AddSingleton<GroqApiClient>();
+        services.AddSingleton<ILlmProvider, OpenAiLlmProvider>();
+        services.AddSingleton<ILlmProvider, GroqLlmProvider>();
+        services.AddSingleton<ILlmProvider, FixtureLlmProvider>();
+        services.AddSingleton<IImageProvider, OpenAiImageProvider>();
+        services.AddSingleton<IImageProvider, FixtureImageProvider>();
         services.AddSingleton<IContentGeneratorService, ContentGeneratorService>();
         services.AddSingleton<IWordPressPublisherService, WordPressPublisherService>();
         services.AddSingleton<IInstagramPublisherService, InstagramPublisherService>();

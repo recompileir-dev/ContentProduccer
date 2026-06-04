@@ -20,7 +20,4 @@ public sealed class OpenAiOptions
 
     public string ImageQuality { get; init; } = "low";
 
-    public string PromptFilePath { get; init; } = "prompts/article-simple-fa.md";
-
-    public string ImagePromptFilePath { get; init; } = "prompts/article-image-fa.md";
 }

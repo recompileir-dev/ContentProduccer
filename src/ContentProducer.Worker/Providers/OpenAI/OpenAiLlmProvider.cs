@@ -3,21 +3,23 @@ using Microsoft.Extensions.Options;
 
 namespace ContentProducer.Worker;
 
-public sealed class OpenAiArticleService : IOpenAiArticleService
+public sealed class OpenAiLlmProvider : ILlmProvider
 {
     private readonly OpenAiApiClient _apiClient;
-    private readonly ILogger<OpenAiArticleService> _logger;
+    private readonly ILogger<OpenAiLlmProvider> _logger;
     private readonly OpenAiOptions _options;
 
-    public OpenAiArticleService(
+    public OpenAiLlmProvider(
         OpenAiApiClient apiClient,
         IOptions<OpenAiOptions> options,
-        ILogger<OpenAiArticleService> logger)
+        ILogger<OpenAiLlmProvider> logger)
     {
         _apiClient = apiClient;
         _logger = logger;
         _options = options.Value;
     }
+
+    public string Name => ProviderNames.OpenAi;
 
     public async Task<GeneratedArticle> GenerateArticleAsync(
         string prompt,
@@ -109,47 +111,7 @@ public sealed class OpenAiArticleService : IOpenAiArticleService
             throw new InvalidOperationException("OpenAI Responses API returned no article text.");
         }
 
-        return ParseArticle(outputText);
-    }
-
-    private static GeneratedArticle ParseArticle(string outputText)
-    {
-        string json = RemoveMarkdownCodeFence(outputText);
-
-        GeneratedArticle? article = JsonSerializer.Deserialize<GeneratedArticle>(
-            json,
-            new JsonSerializerOptions(JsonSerializerDefaults.Web));
-
-        if (article is null ||
-            string.IsNullOrWhiteSpace(article.Title) ||
-            string.IsNullOrWhiteSpace(article.ArticleHtml) ||
-            string.IsNullOrWhiteSpace(article.InstagramCaption))
-        {
-            throw new InvalidOperationException(
-                "OpenAI article response must contain title, articleHtml, and instagramCaption.");
-        }
-
-        return article;
-    }
-
-    private static string RemoveMarkdownCodeFence(string text)
-    {
-        string trimmed = text.Trim();
-
-        if (!trimmed.StartsWith("```", StringComparison.Ordinal))
-        {
-            return trimmed;
-        }
-
-        int firstNewLine = trimmed.IndexOf('\n');
-        int lastFence = trimmed.LastIndexOf("```", StringComparison.Ordinal);
-
-        if (firstNewLine < 0 || lastFence <= firstNewLine)
-        {
-            return trimmed;
-        }
-
-        return trimmed.Substring(firstNewLine + 1, lastFence - firstNewLine - 1).Trim();
+        return GeneratedArticleParser.Parse(outputText, Name);
     }
 
     private static string ExtractOutputText(JsonElement root)

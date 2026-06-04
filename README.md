@@ -10,8 +10,8 @@ a configured time every day.
 - One daily execution time
 - Configurable time zone
 - Reads an article prompt from a file on the host
-- Generates a Persian article using the OpenAI Responses API
-- Uses OpenAI web search for fresh news research
+- Generates a Persian article through a configurable LLM provider
+- Supports OpenAI, Groq, and fixture LLM providers
 - Generates one website article image using the OpenAI Image API
 - Uploads the generated image directly to the WordPress Media Library
 - Publishes the article to WordPress with the image as featured media
@@ -36,49 +36,58 @@ Set the schedule in
 }
 ```
 
-Set the OpenAI API key as an environment variable. Do not commit the key:
+Set API keys for the providers you use as environment variables. Do not commit
+keys:
 
 ```bash
 export OPENAI_API_KEY="your-api-key"
+export GROQ_API_KEY="your-groq-api-key"
 ```
 
 OpenAI API billing is separate from a free ChatGPT account. A smaller model
 reduces cost, but API requests still require an API project with available
-credit or billing.
+credit or billing. `OPENAI_API_KEY` is still required when OpenAI is selected
+as the image provider, even if Groq generates the article.
 
-Configure OpenAI models and prompt paths in
+Configure the active providers and prompt paths in
 `src/ContentProducer.Worker/appsettings.json`:
 
 ```json
 {
+  "ContentGeneration": {
+    "LlmProvider": "OpenAI",
+    "ImageProvider": "OpenAI",
+    "PromptFilePath": "prompts/article-simple-fa.md",
+    "ImagePromptFilePath": "prompts/article-image-fa.md"
+  },
   "OpenAI": {
     "ArticleModel": "gpt-5-mini",
     "ImageModel": "gpt-image-1-mini",
     "EnableWebSearch": false,
     "ImageSize": "1536x1024",
-    "ImageQuality": "low",
-    "PromptFilePath": "prompts/article-simple-fa.md",
-    "ImagePromptFilePath": "prompts/article-image-fa.md"
+    "ImageQuality": "low"
+  },
+  "Groq": {
+    "Model": "groq/compound"
   }
 }
 ```
 
-Choose the active prompt by changing `OpenAI:PromptFilePath`:
+Choose the LLM provider by changing `ContentGeneration:LlmProvider`:
 
 ```json
-"PromptFilePath": "prompts/article-simple-fa.md"
+"LlmProvider": "Groq"
 ```
 
-The simple prompt is intended for local testing and does not need web search.
-For the full news prompt, use:
+Valid LLM providers are `OpenAI`, `Groq`, and `Fixture`. The image provider can
+be `OpenAI` or `Fixture`. Choose the active article prompt with:
 
 ```json
-"EnableWebSearch": true,
 "PromptFilePath": "prompts/article-news-fa.md"
 ```
 
-The prompt selection is stored directly in `appsettings.json`; no environment
-variable is required for it.
+When using OpenAI for fresh news research, also set `OpenAI:EnableWebSearch` to
+`true`. Groq's default `groq/compound` model can use web search and other tools.
 
 The image prompt is also editable without changing code. It asks the model to
 compose a horizontal article image suitable for display at 790 pixels wide.
@@ -101,19 +110,22 @@ export WORDPRESS_APPLICATION_PASSWORD="your-wordpress-application-password"
 export TELEGRAM_BOT_TOKEN="your-telegram-bot-token"
 ```
 
-You can also enable fixture loading in `appsettings.json`:
+You can also select fixture providers in `appsettings.json`:
 
 ```json
-"ContentSource": {
-  "UseFixture": true,
-  "FixtureArticleFilePath": "fixtures/article-example.json",
-  "FixtureImageFilePath": "fixtures/images/article-image.png"
+"ContentGeneration": {
+  "LlmProvider": "Fixture",
+  "ImageProvider": "Fixture"
+},
+"Fixture": {
+  "ArticleFilePath": "fixtures/article-example.json",
+  "ImageFilePath": "fixtures/images/article-image.png"
 }
 ```
 
-Set `UseFixture` back to `false` to use OpenAI again.
+Set the providers back to `OpenAI` or `Groq` to use a real LLM again.
 
-Set WordPress, Instagram, and Telegram secrets as environment variables:
+Set publishing secrets as environment variables:
 
 ```bash
 export WORDPRESS_APPLICATION_PASSWORD="your-wordpress-application-password"
@@ -143,7 +155,8 @@ scheduler:
 dotnet run --project src/ContentProducer.Worker -- run-once
 ```
 
-To test only OpenAI and WordPress while leaving Instagram for later:
+To test only the selected content providers and WordPress while leaving social
+publishing for later:
 
 ```bash
 dotnet run --project src/ContentProducer.Worker -- run-once --skip-instagram --skip-telegram

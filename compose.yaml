@@ -14,14 +14,18 @@ services:
       DOTNET_ENVIRONMENT: Production
       TZ: ${TZ:-Asia/Tehran}
       OPENAI_API_KEY: ${OPENAI_API_KEY}
+      GROQ_API_KEY: ${GROQ_API_KEY}
       WORDPRESS_APPLICATION_PASSWORD: ${WORDPRESS_APPLICATION_PASSWORD}
       INSTAGRAM_ACCESS_TOKEN: ${INSTAGRAM_ACCESS_TOKEN}
       TELEGRAM_BOT_TOKEN: ${TELEGRAM_BOT_TOKEN}
       Scheduler__StartAt: ${SCHEDULER_START_AT:-08:00:00}
       Scheduler__TimeZoneId: ${SCHEDULER_TIME_ZONE_ID:-Asia/Tehran}
+      ContentGeneration__LlmProvider: ${LLM_PROVIDER:-OpenAI}
+      ContentGeneration__ImageProvider: ${IMAGE_PROVIDER:-OpenAI}
+      ContentGeneration__PromptFilePath: ${ARTICLE_PROMPT_FILE_PATH:-prompts/article-news-fa.md}
+      ContentGeneration__ImagePromptFilePath: ${IMAGE_PROMPT_FILE_PATH:-prompts/article-image-fa.md}
       OpenAI__EnableWebSearch: ${OPENAI_ENABLE_WEB_SEARCH:-true}
-      OpenAI__PromptFilePath: ${OPENAI_PROMPT_FILE_PATH:-prompts/article-news-fa.md}
-      OpenAI__ImagePromptFilePath: ${OPENAI_IMAGE_PROMPT_FILE_PATH:-prompts/article-image-fa.md}
+      Groq__Model: ${GROQ_MODEL:-groq/compound}
       WordPress__SiteUrl: ${WORDPRESS_SITE_URL}
       WordPress__Username: ${WORDPRESS_USERNAME}
       WordPress__CategoryId: ${WORDPRESS_CATEGORY_ID}

@@ -106,6 +106,6 @@ keys or behavior between versions.
 ## References
 
 The code removes invalid citation placeholders and builds clickable source links
-from the structured `references` array returned by OpenAI. The news prompt now
+from the structured `references` array returned by the selected LLM provider. The news prompt now
 requires a title and direct URL for every source. Existing fixture content
 without URLs will remain plain text after the placeholders are removed.

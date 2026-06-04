@@ -2,14 +2,15 @@
 
 ## Flow
 
-1. OpenAI generates the article, Instagram-style summary, and one article image.
-2. The image is kept in memory and is not written to the Worker disk.
-3. The image is uploaded directly to the WordPress Media Library.
-4. The WordPress post is published with that image as featured media and as an image inside the post content.
-5. The WordPress post link is read from the WordPress REST API response.
-6. Instagram receives the generated image as a single-image post.
-7. Instagram caption contains the summary and the original WordPress post URL.
-8. Telegram receives the generated image, summary, and original WordPress post link.
+1. The selected LLM provider generates the article and Instagram-style summary.
+2. The selected image provider generates one article image.
+3. The image is kept in memory and is not written to the Worker disk.
+4. The image is uploaded directly to the WordPress Media Library.
+5. The WordPress post is published with that image as featured media and as an image inside the post content.
+6. The WordPress post link is read from the WordPress REST API response.
+7. Instagram receives the generated image as a single-image post.
+8. Instagram caption contains the summary and the original WordPress post URL.
+9. Telegram receives the generated image, summary, and original WordPress post link.
 
 The Worker does not save article or image files locally. WordPress Media Library
 contains the single image used by the WordPress, Instagram, and Telegram posts.
@@ -40,14 +41,17 @@ This command tests WordPress and Telegram publishing. It needs
 `WORDPRESS_APPLICATION_PASSWORD` and `TELEGRAM_BOT_TOKEN`, but it does not need
 `OPENAI_API_KEY`.
 
-Fixture mode can also be enabled in `appsettings.json`:
+Fixture providers can also be selected in `appsettings.json`:
 
 ```json
 {
-  "ContentSource": {
-    "UseFixture": true,
-    "FixtureArticleFilePath": "fixtures/article-example.json",
-    "FixtureImageFilePath": "fixtures/images/article-image.png"
+  "ContentGeneration": {
+    "LlmProvider": "Fixture",
+    "ImageProvider": "Fixture"
+  },
+  "Fixture": {
+    "ArticleFilePath": "fixtures/article-example.json",
+    "ImageFilePath": "fixtures/images/article-image.png"
   }
 }
 ```
