@@ -1,9 +1,11 @@
 **/bin/
 **/obj/
+.git/
+.github/
 .vs/
 .vscode/
-*.user
-*.suo
 local-scripts/
 src/ContentProducer.Worker/pics/
 .env
+*.user
+*.suo

@@ -1,0 +1,34 @@
+services:
+  content-producer:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: content-producer:latest
+    container_name: content-producer
+    restart: unless-stopped
+    init: true
+    security_opt:
+      - no-new-privileges:true
+    stop_grace_period: 30s
+    environment:
+      DOTNET_ENVIRONMENT: Production
+      TZ: ${TZ:-Asia/Tehran}
+      OPENAI_API_KEY: ${OPENAI_API_KEY}
+      WORDPRESS_APPLICATION_PASSWORD: ${WORDPRESS_APPLICATION_PASSWORD}
+      INSTAGRAM_ACCESS_TOKEN: ${INSTAGRAM_ACCESS_TOKEN}
+      TELEGRAM_BOT_TOKEN: ${TELEGRAM_BOT_TOKEN}
+      Scheduler__StartAt: ${SCHEDULER_START_AT:-08:00:00}
+      Scheduler__TimeZoneId: ${SCHEDULER_TIME_ZONE_ID:-Asia/Tehran}
+      OpenAI__EnableWebSearch: ${OPENAI_ENABLE_WEB_SEARCH:-true}
+      OpenAI__PromptFilePath: ${OPENAI_PROMPT_FILE_PATH:-prompts/article-news-fa.md}
+      OpenAI__ImagePromptFilePath: ${OPENAI_IMAGE_PROMPT_FILE_PATH:-prompts/article-image-fa.md}
+      WordPress__SiteUrl: ${WORDPRESS_SITE_URL}
+      WordPress__Username: ${WORDPRESS_USERNAME}
+      WordPress__CategoryId: ${WORDPRESS_CATEGORY_ID}
+      Instagram__InstagramUserId: ${INSTAGRAM_USER_ID}
+      Telegram__ChannelChatId: ${TELEGRAM_CHANNEL_CHAT_ID}
+      Publishing__PublishToWordPress: ${PUBLISH_TO_WORDPRESS:-true}
+      Publishing__PublishToInstagram: ${PUBLISH_TO_INSTAGRAM:-true}
+      Publishing__PublishToTelegram: ${PUBLISH_TO_TELEGRAM:-true}
+    volumes:
+      - ./src/ContentProducer.Worker/prompts:/app/prompts:ro

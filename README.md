@@ -6,7 +6,7 @@ a configured time every day.
 
 ## Current MVP
 
-- C# Worker Service
+- .NET 10 C# Worker Service
 - One daily execution time
 - Configurable time zone
 - Reads an article prompt from a file on the host
@@ -165,3 +165,18 @@ dotnet run --project src/ContentProducer.Worker -- run-once --skip-instagram --s
 ```
 
 More project documentation is available in [docs](./docs/README.md).
+
+## Docker Deployment
+
+The project includes a production Dockerfile and Docker Compose configuration
+for a dedicated Linux server:
+
+```bash
+cp .env.example .env
+docker compose up -d --build
+docker compose logs -f content-producer
+```
+
+The `.env` file contains deployment secrets and is ignored by Git. See the
+[Docker deployment guide](./docs/docker-deployment.md) for complete server
+setup, manual testing, logs, and update instructions.

@@ -18,6 +18,7 @@
 - [تولید مقاله و تصاویر با OpenAI](./openai-content-generation.md)
 - [انتشار خودکار در وردپرس و اینستاگرام](./publishing.md)
 - [تنظیمات انتشار و سئو وردپرس](./wordpress-seo.md)
+- [استقرار پروژه با Docker روی سرور لینوکس](./docker-deployment.md)
 - [نقشه راه توسعه](./roadmap.md)
 
 ## اصول اولیه
