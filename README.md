@@ -42,20 +42,41 @@ Set the OpenAI API key as an environment variable. Do not commit the key:
 export OPENAI_API_KEY="your-api-key"
 ```
 
+OpenAI API billing is separate from a free ChatGPT account. A smaller model
+reduces cost, but API requests still require an API project with available
+credit or billing.
+
 Configure OpenAI models, prompt path, and image count in
 `src/ContentProducer.Worker/appsettings.json`:
 
 ```json
 {
   "OpenAI": {
-    "ArticleModel": "gpt-5.5",
-    "ImageModel": "gpt-image-2",
-    "EnableWebSearch": true,
-    "ImageCount": 4,
-    "PromptFilePath": "prompts/article-news-fa.md"
+    "ArticleModel": "gpt-5-mini",
+    "ImageModel": "gpt-image-1-mini",
+    "EnableWebSearch": false,
+    "ImageCount": 2,
+    "PromptFilePath": "prompts/article-simple-fa.md"
   }
 }
 ```
+
+Choose the active prompt by changing `OpenAI:PromptFilePath`:
+
+```json
+"PromptFilePath": "prompts/article-simple-fa.md"
+```
+
+The simple prompt is intended for local testing and does not need web search.
+For the full news prompt, use:
+
+```json
+"EnableWebSearch": true,
+"PromptFilePath": "prompts/article-news-fa.md"
+```
+
+The prompt selection is stored directly in `appsettings.json`; no environment
+variable is required for it.
 
 Set WordPress, Instagram, and Telegram secrets as environment variables:
 

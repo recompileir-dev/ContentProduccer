@@ -20,6 +20,8 @@
 export OPENAI_API_KEY="your-api-key"
 ```
 
+استفاده رایگان از ChatGPT به‌معنی اعتبار رایگان OpenAI API نیست. مدل‌های کوچک‌تر هزینه را کاهش می‌دهند، اما برای اجرای API همچنان باید پروژه API دارای اعتبار یا Billing فعال باشد.
+
 نام متغیر محیطی از طریق `OpenAI:ApiKeyEnvironmentVariable` قابل تغییر است. برای محیط‌هایی که امکان تعریف متغیر محیطی ندارند، تنظیم `OpenAI:ApiKey` نیز پشتیبانی می‌شود، اما فایل حاوی آن نباید وارد Git شود.
 
 ## تنظیمات
@@ -29,13 +31,13 @@ export OPENAI_API_KEY="your-api-key"
   "OpenAI": {
     "ApiKeyEnvironmentVariable": "OPENAI_API_KEY",
     "BaseUrl": "https://api.openai.com/v1/",
-    "ArticleModel": "gpt-5.5",
-    "ImageModel": "gpt-image-2",
-    "EnableWebSearch": true,
-    "ImageCount": 4,
+    "ArticleModel": "gpt-5-mini",
+    "ImageModel": "gpt-image-1-mini",
+    "EnableWebSearch": false,
+    "ImageCount": 2,
     "ImageSize": "1024x1024",
-    "ImageQuality": "medium",
-    "PromptFilePath": "prompts/article-news-fa.md"
+    "ImageQuality": "low",
+    "PromptFilePath": "prompts/article-simple-fa.md"
   }
 }
 ```
@@ -44,13 +46,19 @@ export OPENAI_API_KEY="your-api-key"
 
 ## فایل نمونه پرامپ
 
-فایل نمونه در مسیر زیر قرار دارد:
+پرامپ ساده برای تست در مسیر زیر قرار دارد:
+
+```text
+src/ContentProducer.Worker/prompts/article-simple-fa.md
+```
+
+پرامپ کامل خبری در مسیر زیر حفظ شده است:
 
 ```text
 src/ContentProducer.Worker/prompts/article-news-fa.md
 ```
 
-این فایل هنگام Build و Publish همراه برنامه کپی می‌شود و می‌توان آن را روی هاست بدون تغییر کد ویرایش کرد.
+برای انتخاب پرامپ فقط مقدار `OpenAI:PromptFilePath` را در `appsettings.json` تغییر دهید. برای پرامپ خبری، `EnableWebSearch` را نیز روی `true` قرار دهید. این فایل‌ها هنگام Build و Publish همراه برنامه کپی می‌شوند و می‌توان آن‌ها را روی هاست بدون تغییر کد ویرایش کرد.
 
 ## خروجی ساخت‌یافته مقاله
 

@@ -70,6 +70,11 @@ public sealed class OpenAiArticleService : IOpenAiArticleService
             body,
             cancellationToken);
 
+        _logger.LogInformation(
+            "Article generated with OpenAI model {Model}. Web search enabled: {EnableWebSearch}.",
+            _options.ArticleModel,
+            _options.EnableWebSearch);
+
         string outputText = ExtractOutputText(response.RootElement);
 
         if (string.IsNullOrWhiteSpace(outputText))
