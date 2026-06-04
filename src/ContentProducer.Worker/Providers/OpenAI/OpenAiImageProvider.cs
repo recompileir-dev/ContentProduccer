@@ -31,10 +31,6 @@ public sealed class OpenAiImageProvider : IImageProvider
         GeneratedArticle article,
         CancellationToken cancellationToken)
     {
-        _logger.LogInformation(
-            "Generating article image with OpenAI model {Model}.",
-            _options.ImageModel);
-
         string promptTemplatePath = ResolvePath(
             _contentGenerationOptions.ImagePromptFilePath);
         string promptTemplate = await File.ReadAllTextAsync(
@@ -47,6 +43,12 @@ public sealed class OpenAiImageProvider : IImageProvider
                 "{{focusKeyphrase}}",
                 WordPressContentFormatter.GetFocusKeyphrase(article),
                 StringComparison.Ordinal);
+
+        _logger.LogInformation(
+            "Generating article image with OpenAI model {Model}. Prompt characters: " +
+            "{PromptCharacters}.",
+            _options.ImageModel,
+            prompt.Length);
 
         using JsonDocument response = await _apiClient.PostAsync(
             "images/generations",
