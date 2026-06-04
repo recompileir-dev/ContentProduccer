@@ -54,7 +54,7 @@ public sealed class ContentGeneratorService : IContentGeneratorService
         IReadOnlyList<GeneratedImage> images =
             await _imageService.GenerateCarouselImagesAsync(article, cancellationToken);
 
-        return new GeneratedContent(article, images);
+        return new GeneratedContent(NormalizeArticle(article), images);
     }
 
     private async Task<GeneratedContent> LoadFixtureAsync(CancellationToken cancellationToken)
@@ -103,7 +103,38 @@ public sealed class ContentGeneratorService : IContentGeneratorService
             images.Count,
             imagesDirectory);
 
-        return new GeneratedContent(article, images);
+        return new GeneratedContent(NormalizeArticle(article), images);
+    }
+
+    private static GeneratedArticle NormalizeArticle(GeneratedArticle article)
+    {
+        string focusKeyphrase = string.IsNullOrWhiteSpace(article.FocusKeyphrase)
+            ? article.Title
+            : article.FocusKeyphrase;
+        string seoTitle = string.IsNullOrWhiteSpace(article.SeoTitle)
+            ? article.Title
+            : article.SeoTitle;
+        string metaDescription = string.IsNullOrWhiteSpace(article.MetaDescription)
+            ? TrimToLength(article.InstagramCaption, 155)
+            : article.MetaDescription;
+
+        return article with
+        {
+            FocusKeyphrase = focusKeyphrase,
+            SeoTitle = seoTitle,
+            MetaDescription = metaDescription,
+            References = article.References ?? Array.Empty<GeneratedReference>()
+        };
+    }
+
+    private static string TrimToLength(string value, int maxLength)
+    {
+        if (value.Length <= maxLength)
+        {
+            return value;
+        }
+
+        return value.Substring(0, maxLength - 3) + "...";
     }
 
     private string ResolvePath(string path)

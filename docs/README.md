@@ -17,6 +17,7 @@
 - [جریان تولید و انتشار محتوا](./content-workflow.md)
 - [تولید مقاله و تصاویر با OpenAI](./openai-content-generation.md)
 - [انتشار خودکار در وردپرس و اینستاگرام](./publishing.md)
+- [تنظیمات انتشار و سئو وردپرس](./wordpress-seo.md)
 - [نقشه راه توسعه](./roadmap.md)
 
 ## اصول اولیه

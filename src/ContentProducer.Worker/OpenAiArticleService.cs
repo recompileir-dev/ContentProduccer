@@ -42,9 +42,36 @@ public sealed class OpenAiArticleService : IOpenAiArticleService
                     {
                         title = new { type = "string" },
                         articleHtml = new { type = "string" },
-                        instagramCaption = new { type = "string" }
+                        instagramCaption = new { type = "string" },
+                        focusKeyphrase = new { type = "string" },
+                        seoTitle = new { type = "string" },
+                        metaDescription = new { type = "string" },
+                        references = new
+                        {
+                            type = "array",
+                            items = new
+                            {
+                                type = "object",
+                                properties = new
+                                {
+                                    title = new { type = "string" },
+                                    url = new { type = "string" }
+                                },
+                                required = new[] { "title", "url" },
+                                additionalProperties = false
+                            }
+                        }
                     },
-                    required = new[] { "title", "articleHtml", "instagramCaption" },
+                    required = new[]
+                    {
+                        "title",
+                        "articleHtml",
+                        "instagramCaption",
+                        "focusKeyphrase",
+                        "seoTitle",
+                        "metaDescription",
+                        "references"
+                    },
                     additionalProperties = false
                 }
             }

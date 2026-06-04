@@ -48,7 +48,7 @@ public sealed class ContentProductionService : IContentProductionService
 
         IReadOnlyList<WordPressMedia> media = await _wordPressPublisherService.UploadImagesAsync(
             article,
-            images,
+            images.Take(1).ToArray(),
             cancellationToken);
 
         if (media.Count == 0)
@@ -69,12 +69,18 @@ public sealed class ContentProductionService : IContentProductionService
             wordPressPost.Link);
         string[] imageUrls = media.Select(item => item.SourceUrl).ToArray();
 
-        if (_publishingOptions.PublishToInstagram)
+        if (_publishingOptions.PublishToInstagram && imageUrls.Length >= 2)
         {
             await _instagramPublisherService.PublishCarouselAsync(
                 instagramCaption,
                 imageUrls,
                 cancellationToken);
+        }
+        else if (_publishingOptions.PublishToInstagram)
+        {
+            _logger.LogWarning(
+                "Instagram publishing was skipped because only {ImageCount} public image URL is available.",
+                imageUrls.Length);
         }
         else
         {

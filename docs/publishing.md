@@ -4,16 +4,17 @@
 
 1. OpenAI generates the article, Instagram-style summary, and carousel images.
 2. Images are kept in memory and are not written to the Worker disk.
-3. Images are uploaded directly to the WordPress Media Library.
-4. The WordPress post is published with the first image as featured media.
+3. Only the first image is uploaded directly to the WordPress Media Library.
+4. The WordPress post is published with that image as featured media and as an image inside the post content.
 5. The WordPress post link is read from the WordPress REST API response.
 6. Instagram receives the generated images as a carousel.
 7. Instagram caption contains the summary and the original WordPress post URL.
 8. Telegram receives the generated images, summary, and original WordPress post link.
 
 The Worker does not save article or image files locally. WordPress Media Library
-is used as the public image host because Instagram and Telegram need externally
-reachable image URLs.
+contains the single image used by the WordPress post and Telegram. Instagram
+carousel publishing is skipped when fewer than two public image URLs are
+available.
 
 ## Manual Test Without Scheduler
 

@@ -63,6 +63,8 @@ public sealed class WordPressPublisherService : IWordPressPublisherService
             string sourceUrl = document.RootElement.GetProperty("source_url").GetString()
                 ?? throw new InvalidOperationException("WordPress media response has no source_url.");
 
+            await UpdateMediaMetadataAsync(id, article, cancellationToken);
+
             mediaItems.Add(new WordPressMedia(id, sourceUrl));
             _logger.LogInformation(
                 "Uploaded WordPress media {MediaId} for carousel slide {SlideNumber}.",
@@ -78,15 +80,32 @@ public sealed class WordPressPublisherService : IWordPressPublisherService
         WordPressMedia featuredImage,
         CancellationToken cancellationToken)
     {
-        string json = JsonSerializer.Serialize(
-            new
-            {
-                title = article.Title,
-                content = article.ArticleHtml,
-                status = _options.PostStatus,
-                featured_media = featuredImage.Id
-            },
-            JsonOptions);
+        string postContent = WordPressContentFormatter.BuildPostContent(
+            article,
+            featuredImage,
+            _options.InternalLinkUrls);
+        Dictionary<string, string>? seoMeta = BuildSeoMeta(article);
+
+        Dictionary<string, object?> post = new()
+        {
+            ["title"] = article.Title,
+            ["content"] = postContent,
+            ["excerpt"] = article.MetaDescription,
+            ["status"] = _options.PostStatus,
+            ["featured_media"] = featuredImage.Id
+        };
+
+        if (_options.CategoryIds.Length > 0)
+        {
+            post["categories"] = _options.CategoryIds;
+        }
+
+        if (seoMeta is not null)
+        {
+            post["meta"] = seoMeta;
+        }
+
+        string json = JsonSerializer.Serialize(post, JsonOptions);
 
         using HttpRequestMessage request = new(HttpMethod.Post, "wp-json/wp/v2/posts")
         {
@@ -109,6 +128,52 @@ public sealed class WordPressPublisherService : IWordPressPublisherService
             article.Title);
 
         return new WordPressPost(postId, postLink);
+    }
+
+    private async Task UpdateMediaMetadataAsync(
+        int mediaId,
+        GeneratedArticle article,
+        CancellationToken cancellationToken)
+    {
+        string altText = WordPressContentFormatter.GetFocusKeyphrase(article);
+        string json = JsonSerializer.Serialize(
+            new
+            {
+                alt_text = altText,
+                title = article.Title,
+                caption = article.Title
+            },
+            JsonOptions);
+
+        using HttpRequestMessage request = new(
+            HttpMethod.Post,
+            $"wp-json/wp/v2/media/{mediaId}")
+        {
+            Content = new StringContent(json, Encoding.UTF8, "application/json")
+        };
+
+        using HttpResponseMessage response =
+            await _httpClient.SendAsync(request, cancellationToken);
+        string responseBody = await response.Content.ReadAsStringAsync(cancellationToken);
+        EnsureSuccess(response, responseBody, "update WordPress media metadata");
+    }
+
+    private Dictionary<string, string>? BuildSeoMeta(GeneratedArticle article)
+    {
+        if (!_options.SendSeoMeta)
+        {
+            return null;
+        }
+
+        return new Dictionary<string, string>
+        {
+            [_options.FocusKeyphraseMetaKey] =
+                WordPressContentFormatter.GetFocusKeyphrase(article),
+            [_options.SeoTitleMetaKey] =
+                string.IsNullOrWhiteSpace(article.SeoTitle) ? article.Title : article.SeoTitle,
+            [_options.MetaDescriptionMetaKey] =
+                article.MetaDescription ?? string.Empty
+        };
     }
 
     private static HttpClient CreateHttpClient(WordPressOptions options)
