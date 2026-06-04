@@ -128,6 +128,7 @@ WORDPRESS_SITE_URL=https://example.com/
 WORDPRESS_USERNAME=wordpress-user
 WORDPRESS_APPLICATION_PASSWORD=replace-with-wordpress-application-password
 WORDPRESS_CATEGORY_ID=1
+WORDPRESS_REQUIRE_CATEGORY_ID=true
 
 PUBLISH_TO_WORDPRESS=false
 PUBLISH_TO_INSTAGRAM=false
@@ -139,6 +140,9 @@ PUBLISH_TO_TELEGRAM=false
 - مدل `openai/gpt-oss-120b` در این پروژه از API و کلید Groq استفاده می‌کند.
 - Groq تولید تصویر ندارد؛ برای اجرای بدون OpenAI مقدار `IMAGE_PROVIDER=None` بماند.
 - اگر OpenAI باید تصویر بسازد، `IMAGE_PROVIDER=OpenAI` و `OPENAI_API_KEY` را تنظیم کن.
+- مقدار `WORDPRESS_CATEGORY_ID` باید شناسه عددی دسته‌بندی واقعی وردپرس باشد.
+  در پنل وردپرس به **نوشته‌ها > دسته‌ها** برو، دسته را باز کن و مقدار عددی
+  `tag_ID` را از آدرس مرورگر بردار. برای مثال `tag_ID=50` یعنی شناسه دسته `50` است.
 
 ## 6. بررسی تنظیمات Compose و ساخت Image
 

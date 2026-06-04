@@ -18,6 +18,8 @@ public sealed class WordPressOptions
 
     public int? CategoryId { get; init; }
 
+    public bool RequireCategoryId { get; init; } = true;
+
     public string[] InternalLinkUrls { get; init; } = Array.Empty<string>();
 
     public bool SendSeoMeta { get; init; }

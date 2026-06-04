@@ -76,7 +76,9 @@ dotnet run --project src/ContentProducer.Worker -- run-once --skip-instagram --s
     "SiteUrl": "https://example.com",
     "UsernameEnvironmentVariable": "WORDPRESS_USERNAME",
     "ApplicationPasswordEnvironmentVariable": "WORDPRESS_APPLICATION_PASSWORD",
-    "PostStatus": "publish"
+    "PostStatus": "publish",
+    "CategoryId": 50,
+    "RequireCategoryId": true
   }
 }
 ```
@@ -90,6 +92,11 @@ export WORDPRESS_APPLICATION_PASSWORD="your-wordpress-application-password"
 ```
 
 The WordPress site must use HTTPS and expose the REST API.
+
+`CategoryId` is the numeric WordPress post category ID. Find it from
+**Posts > Categories** by opening the category and reading the `tag_ID` value
+from the browser URL. The Worker rejects a missing or invalid category when
+`RequireCategoryId` is `true`.
 
 ## Instagram Settings
 

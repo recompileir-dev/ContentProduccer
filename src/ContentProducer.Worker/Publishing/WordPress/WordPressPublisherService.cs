@@ -31,6 +31,8 @@ public sealed class WordPressPublisherService : IWordPressPublisherService
         EnsureSuccess(response, responseBody, "validate WordPress REST API authentication");
 
         _logger.LogInformation("WordPress REST API authentication is valid.");
+
+        await ValidateCategoryAsync(cancellationToken);
     }
 
     public async Task<WordPressMedia> UploadImageAsync(
@@ -117,12 +119,74 @@ public sealed class WordPressPublisherService : IWordPressPublisherService
         string postLink = document.RootElement.GetProperty("link").GetString()
             ?? throw new InvalidOperationException("WordPress post response has no link.");
 
+        EnsureCategoryAssigned(document.RootElement, postId);
+
         _logger.LogInformation(
-            "Published WordPress post {PostId} with title {Title}.",
+            "Published WordPress post {PostId} with title {Title} in category {CategoryId}.",
             postId,
-            article.Title);
+            article.Title,
+            _options.CategoryId);
 
         return new WordPressPost(postId, postLink);
+    }
+
+    private async Task ValidateCategoryAsync(CancellationToken cancellationToken)
+    {
+        if (!_options.CategoryId.HasValue)
+        {
+            if (_options.RequireCategoryId)
+            {
+                throw new InvalidOperationException(
+                    "WordPress category is required. Set WordPress:CategoryId or " +
+                    "the WORDPRESS_CATEGORY_ID environment variable.");
+            }
+
+            return;
+        }
+
+        if (_options.CategoryId.Value <= 0)
+        {
+            throw new InvalidOperationException(
+                "WordPress:CategoryId must be a positive numeric category ID.");
+        }
+
+        using HttpResponseMessage response = await _httpClient.GetAsync(
+            $"wp-json/wp/v2/categories/{_options.CategoryId.Value}?context=view",
+            cancellationToken);
+        string responseBody = await response.Content.ReadAsStringAsync(cancellationToken);
+        EnsureSuccess(
+            response,
+            responseBody,
+            $"validate WordPress category {_options.CategoryId.Value}");
+
+        using JsonDocument document = JsonDocument.Parse(responseBody);
+        string categoryName = document.RootElement.GetProperty("name").GetString()
+            ?? _options.CategoryId.Value.ToString();
+
+        _logger.LogInformation(
+            "WordPress category {CategoryId} ({CategoryName}) is valid.",
+            _options.CategoryId.Value,
+            categoryName);
+    }
+
+    private void EnsureCategoryAssigned(JsonElement post, int postId)
+    {
+        if (!_options.CategoryId.HasValue)
+        {
+            return;
+        }
+
+        bool categoryAssigned =
+            post.TryGetProperty("categories", out JsonElement categories) &&
+            categories.EnumerateArray().Any(category =>
+                category.GetInt32() == _options.CategoryId.Value);
+
+        if (!categoryAssigned)
+        {
+            throw new InvalidOperationException(
+                $"WordPress post {postId} was published without the configured category " +
+                $"{_options.CategoryId.Value}.");
+        }
     }
 
     private async Task UpdateMediaMetadataAsync(

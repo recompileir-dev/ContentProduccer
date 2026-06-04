@@ -20,7 +20,8 @@ Configure the WordPress category ID in `appsettings.json`:
 ```json
 {
   "WordPress": {
-    "CategoryId": 12
+    "CategoryId": 12,
+    "RequireCategoryId": true
   }
 }
 ```
@@ -30,6 +31,22 @@ The category ID can be found in the WordPress admin category edit URL or from:
 ```text
 GET /wp-json/wp/v2/categories
 ```
+
+In the WordPress admin panel, open **Posts > Categories**, click the target
+category, and inspect the browser URL. The numeric value after `tag_ID=` is the
+category ID. For example, `tag_ID=50` means the category ID is `50`.
+
+For Docker deployment, set the same numeric ID in `.env`:
+
+```dotenv
+WORDPRESS_CATEGORY_ID=50
+WORDPRESS_REQUIRE_CATEGORY_ID=true
+```
+
+The Worker validates this category before generating an article and verifies
+that WordPress returned the configured category after publishing. An invalid or
+missing category stops the run instead of silently publishing an uncategorized
+post.
 
 ## Internal Links
 

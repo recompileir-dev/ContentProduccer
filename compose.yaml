@@ -40,6 +40,7 @@ services:
       Groq__ContinueWithoutResearchOnFailure: ${GROQ_CONTINUE_WITHOUT_RESEARCH_ON_FAILURE:-true}
       WordPress__SiteUrl: ${WORDPRESS_SITE_URL}
       WordPress__CategoryId: ${WORDPRESS_CATEGORY_ID}
+      WordPress__RequireCategoryId: ${WORDPRESS_REQUIRE_CATEGORY_ID:-true}
       Instagram__InstagramUserId: ${INSTAGRAM_USER_ID}
       Telegram__ChannelChatId: ${TELEGRAM_CHANNEL_CHAT_ID}
       Publishing__PublishToWordPress: ${PUBLISH_TO_WORDPRESS:-true}
