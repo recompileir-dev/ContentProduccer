@@ -26,8 +26,11 @@ public sealed class GroqLlmProvider : ILlmProvider
         CancellationToken cancellationToken)
     {
         _logger.LogInformation(
-            "Generating article with Groq model {Model}.",
-            _options.Model);
+            "Generating article with Groq model {Model}. Prompt characters: {PromptCharacters}. " +
+            "Max completion tokens: {MaxCompletionTokens}.",
+            _options.Model,
+            prompt.Length,
+            _options.MaxCompletionTokens);
 
         using JsonDocument response = await _apiClient.PostAsync(
             "chat/completions",

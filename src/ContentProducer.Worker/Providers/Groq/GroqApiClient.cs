@@ -29,6 +29,7 @@ public sealed class GroqApiClient
         CancellationToken cancellationToken)
     {
         string json = JsonSerializer.Serialize(body, JsonOptions);
+        int requestBytes = Encoding.UTF8.GetByteCount(json);
 
         using HttpRequestMessage request = new(HttpMethod.Post, relativeUrl);
         request.Headers.Authorization =
@@ -41,9 +42,14 @@ public sealed class GroqApiClient
 
         if (!response.IsSuccessStatusCode)
         {
+            string sizeHint = response.StatusCode == System.Net.HttpStatusCode.RequestEntityTooLarge
+                ? $" Request body size: {requestBytes} UTF-8 bytes. Reduce Groq:MaxCompletionTokens " +
+                  "or shorten the selected prompt."
+                : string.Empty;
+
             throw new InvalidOperationException(
                 $"Groq API request failed with status {(int)response.StatusCode}: " +
-                responseBody);
+                responseBody + sizeHint);
         }
 
         return JsonDocument.Parse(responseBody);

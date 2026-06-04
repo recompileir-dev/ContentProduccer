@@ -26,6 +26,7 @@ services:
       ContentGeneration__ImagePromptFilePath: ${IMAGE_PROMPT_FILE_PATH:-prompts/article-image-fa.md}
       OpenAI__EnableWebSearch: ${OPENAI_ENABLE_WEB_SEARCH:-true}
       Groq__Model: ${GROQ_MODEL:-groq/compound}
+      Groq__MaxCompletionTokens: ${GROQ_MAX_COMPLETION_TOKENS:-4096}
       WordPress__SiteUrl: ${WORDPRESS_SITE_URL}
       WordPress__Username: ${WORDPRESS_USERNAME}
       WordPress__CategoryId: ${WORDPRESS_CATEGORY_ID}

@@ -12,5 +12,5 @@ public sealed class GroqOptions
 
     public string Model { get; init; } = "groq/compound";
 
-    public int MaxCompletionTokens { get; init; } = 8192;
+    public int MaxCompletionTokens { get; init; } = 4096;
 }

@@ -67,7 +67,7 @@ export OPENAI_API_KEY="your-api-key"
     "ApiKeyEnvironmentVariable": "GROQ_API_KEY",
     "BaseUrl": "https://api.groq.com/openai/v1/",
     "Model": "groq/compound",
-    "MaxCompletionTokens": 8192
+    "MaxCompletionTokens": 4096
   }
 }
 ```
@@ -81,6 +81,10 @@ export GROQ_API_KEY="your-groq-api-key"
 The default `groq/compound` system is suitable for the news prompt because it
 can use external tools such as web search. Groq uses JSON Object Mode and the
 same article prompt and output contract as OpenAI.
+
+`MaxCompletionTokens` is intentionally lower than the model's absolute maximum.
+Requesting the full model limit can be rejected by some Groq plans or gateways.
+Increase it only when the generated article is being truncated.
 
 ## Code Structure
 
