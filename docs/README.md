@@ -19,6 +19,7 @@
 - [انتشار خودکار در وردپرس و اینستاگرام](./publishing.md)
 - [تنظیمات انتشار و سئو وردپرس](./wordpress-seo.md)
 - [استقرار پروژه با Docker روی سرور لینوکس](./docker-deployment.md)
+- [راهنمای قدم‌به‌قدم انتقال پروژه به سرور](./server-deployment-step-by-step-fa.md)
 - [نقشه راه توسعه](./roadmap.md)
 
 ## اصول اولیه

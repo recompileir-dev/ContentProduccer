@@ -175,7 +175,6 @@ dotnet run --project src/ContentProducer.Worker -- run-once --use-fixture
 
 ## Prompt Files
 
-- `prompts/article-simple-fa.md`: simple article prompt for local testing
 - `prompts/article-news-fa.md`: news prompt that examines two or three fresh AI-life-impact news items
 - `prompts/article-news-groq-fa.md`: Groq-specific news prompt with explicit depth and length requirements
 - `prompts/article-image-fa.md`: editable website image prompt

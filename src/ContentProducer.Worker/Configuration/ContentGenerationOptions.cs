@@ -8,7 +8,7 @@ public sealed class ContentGenerationOptions
 
     public string ImageProvider { get; init; } = ProviderNames.OpenAi;
 
-    public string PromptFilePath { get; init; } = "prompts/article-simple-fa.md";
+    public string PromptFilePath { get; init; } = "prompts/article-news-fa.md";
 
     public Dictionary<string, string> ProviderPromptFilePaths { get; init; } = new();
 

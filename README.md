@@ -57,7 +57,7 @@ Configure the active providers and prompt paths in
   "ContentGeneration": {
     "LlmProvider": "OpenAI",
     "ImageProvider": "OpenAI",
-    "PromptFilePath": "prompts/article-simple-fa.md",
+    "PromptFilePath": "prompts/article-news-fa.md",
     "ProviderPromptFilePaths": {
       "Groq": "prompts/article-news-groq-fa.md"
     },
@@ -229,4 +229,6 @@ docker compose logs -f content-producer
 
 The `.env` file contains deployment secrets and is ignored by Git. See the
 [Docker deployment guide](./docs/docker-deployment.md) for complete server
-setup, manual testing, logs, and update instructions.
+setup, manual testing, logs, and update instructions. A Persian step-by-step
+checklist is available in the
+[server deployment guide](./docs/server-deployment-step-by-step-fa.md).
