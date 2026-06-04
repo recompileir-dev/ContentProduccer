@@ -10,9 +10,13 @@ public sealed class GroqOptions
 
     public string BaseUrl { get; init; } = "https://api.groq.com/openai/v1/";
 
-    public string WriterModel { get; init; } = "llama-3.3-70b-versatile";
+    public string WriterModel { get; init; } = "openai/gpt-oss-120b";
 
-    public int MaxCompletionTokens { get; init; } = 4096;
+    public int MaxCompletionTokens { get; init; } = 5000;
+
+    public int MinimumArticleHtmlCharacters { get; init; } = 4500;
+
+    public bool RejectShortArticles { get; init; } = true;
 
     public bool EnableWebResearch { get; init; } = true;
 

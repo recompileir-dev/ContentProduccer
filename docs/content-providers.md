@@ -31,6 +31,9 @@ provider. To avoid using an image API, select `None`.
     "LlmProvider": "Groq",
     "ImageProvider": "None",
     "PromptFilePath": "prompts/article-news-fa.md",
+    "ProviderPromptFilePaths": {
+      "Groq": "prompts/article-news-groq-fa.md"
+    },
     "ImagePromptFilePath": "prompts/article-image-fa.md"
   }
 }
@@ -38,6 +41,11 @@ provider. To avoid using an image API, select `None`.
 
 Provider names are case-insensitive. Unknown provider names fail at runtime and
 the error lists the available providers.
+
+`PromptFilePath` is the fallback prompt for every LLM provider.
+`ProviderPromptFilePaths` can override it by provider name. This allows OpenAI
+and Groq to receive prompts tuned for their different APIs and model behavior
+without changing provider code.
 
 With `ImageProvider: None`, WordPress publishes without featured media,
 Telegram publishes a text message, and Instagram is skipped because its feed
@@ -72,8 +80,10 @@ export OPENAI_API_KEY="your-api-key"
   "Groq": {
     "ApiKeyEnvironmentVariable": "GROQ_API_KEY",
     "BaseUrl": "https://api.groq.com/openai/v1/",
-    "WriterModel": "llama-3.3-70b-versatile",
-    "MaxCompletionTokens": 4096,
+    "WriterModel": "openai/gpt-oss-120b",
+    "MaxCompletionTokens": 5000,
+    "MinimumArticleHtmlCharacters": 4500,
+    "RejectShortArticles": true,
     "EnableWebResearch": true,
     "ResearchModel": "groq/compound-mini",
     "ResearchModelVersion": "2025-07-23",
@@ -94,8 +104,12 @@ export GROQ_API_KEY="your-groq-api-key"
 The Groq provider uses two stages by default:
 
 1. `groq/compound-mini` performs a focused web research request.
-2. `llama-3.3-70b-versatile` receives the original prompt plus the research
+2. `openai/gpt-oss-120b` receives the original prompt plus the research
    notes and writes the structured JSON article.
+
+Despite its model ID, `openai/gpt-oss-120b` is served through the Groq API and
+uses the Groq API key and Groq billing. It is the default writer because it
+followed the long-form Persian article instructions more reliably in testing.
 
 This avoids asking a Compound system to perform web research and generate a
 long JSON article in one request, which can result in HTTP `413 Request Entity
@@ -112,6 +126,9 @@ model continue without research notes instead of stopping the Worker.
 
 Disable web research with `EnableWebResearch: false` for prompts that do not
 need fresh information. Increase token limits only when output is truncated.
+The provider rejects an article when `articleHtml` is shorter than
+`MinimumArticleHtmlCharacters` and `RejectShortArticles` is `true`. Set it to
+`false` only when short articles are acceptable.
 
 ## Code Structure
 
@@ -160,10 +177,11 @@ dotnet run --project src/ContentProducer.Worker -- run-once --use-fixture
 
 - `prompts/article-simple-fa.md`: simple article prompt for local testing
 - `prompts/article-news-fa.md`: news prompt that examines two or three fresh AI-life-impact news items
+- `prompts/article-news-groq-fa.md`: Groq-specific news prompt with explicit depth and length requirements
 - `prompts/article-image-fa.md`: editable website image prompt
 
-Article and image prompt paths are shared across providers and can be edited
-without changing provider code.
+Article prompt paths can be shared or overridden per provider. Image prompts
+can also be edited without changing provider code.
 
 ## Structured Article Output
 

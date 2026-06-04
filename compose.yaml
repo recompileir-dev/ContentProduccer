@@ -24,10 +24,13 @@ services:
       ContentGeneration__LlmProvider: ${LLM_PROVIDER:-OpenAI}
       ContentGeneration__ImageProvider: ${IMAGE_PROVIDER:-OpenAI}
       ContentGeneration__PromptFilePath: ${ARTICLE_PROMPT_FILE_PATH:-prompts/article-news-fa.md}
+      ContentGeneration__ProviderPromptFilePaths__Groq: ${GROQ_ARTICLE_PROMPT_FILE_PATH:-prompts/article-news-groq-fa.md}
       ContentGeneration__ImagePromptFilePath: ${IMAGE_PROMPT_FILE_PATH:-prompts/article-image-fa.md}
       OpenAI__EnableWebSearch: ${OPENAI_ENABLE_WEB_SEARCH:-true}
-      Groq__WriterModel: ${GROQ_WRITER_MODEL:-llama-3.3-70b-versatile}
-      Groq__MaxCompletionTokens: ${GROQ_MAX_COMPLETION_TOKENS:-4096}
+      Groq__WriterModel: ${GROQ_WRITER_MODEL:-openai/gpt-oss-120b}
+      Groq__MaxCompletionTokens: ${GROQ_MAX_COMPLETION_TOKENS:-5000}
+      Groq__MinimumArticleHtmlCharacters: ${GROQ_MINIMUM_ARTICLE_HTML_CHARACTERS:-4500}
+      Groq__RejectShortArticles: ${GROQ_REJECT_SHORT_ARTICLES:-true}
       Groq__EnableWebResearch: ${GROQ_ENABLE_WEB_RESEARCH:-true}
       Groq__ResearchModel: ${GROQ_RESEARCH_MODEL:-groq/compound-mini}
       Groq__ResearchModelVersion: ${GROQ_RESEARCH_MODEL_VERSION:-2025-07-23}

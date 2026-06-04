@@ -45,6 +45,11 @@ public sealed class GroqLlmProvider : ILlmProvider
                 {
                     new
                     {
+                        role = "system",
+                        content = BuildWriterSystemPrompt()
+                    },
+                    new
+                    {
                         role = "user",
                         content = writerPrompt
                     }
@@ -65,11 +70,43 @@ public sealed class GroqLlmProvider : ILlmProvider
                 "Groq Chat Completions API returned no article text.");
         }
 
-        _logger.LogInformation(
-            "Article generated with Groq model {Model}.",
-            _options.WriterModel);
+        GeneratedArticle article = GeneratedArticleParser.Parse(outputText, Name);
 
-        return GeneratedArticleParser.Parse(outputText, Name);
+        if (article.ArticleHtml.Length < _options.MinimumArticleHtmlCharacters)
+        {
+            string message =
+                $"Groq generated a short article. Article HTML characters: " +
+                $"{article.ArticleHtml.Length}. Required minimum: " +
+                $"{_options.MinimumArticleHtmlCharacters}.";
+
+            if (_options.RejectShortArticles)
+            {
+                throw new InvalidOperationException(message);
+            }
+
+            _logger.LogWarning("{Message}", message);
+        }
+
+        _logger.LogInformation(
+            "Article generated with Groq model {Model}. Article HTML characters: " +
+            "{ArticleHtmlCharacters}.",
+            _options.WriterModel,
+            article.ArticleHtml.Length);
+
+        return article;
+    }
+
+    private static string BuildWriterSystemPrompt()
+    {
+        return string.Join(
+            Environment.NewLine,
+            "You are a senior Persian technology journalist.",
+            "Follow every structural and length requirement in the user prompt.",
+            "The article must be detailed, source-grounded, and focused on the specific news items.",
+            "Do not replace the requested analysis with a short generic overview.",
+            "The articleHtml field must contain at least 5000 Persian content characters.",
+            "An articleHtml value shorter than 5000 characters is invalid.",
+            "Return one valid JSON object only.");
     }
 
     private async Task<string> GetResearchAsync(

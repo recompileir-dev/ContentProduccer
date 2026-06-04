@@ -41,7 +41,11 @@ public sealed class ContentGeneratorService : IContentGeneratorService
             llmProvider.Name,
             imageProvider.Name);
 
-        string promptPath = ResolvePath(_options.PromptFilePath);
+        string promptPath = ResolvePath(GetPromptFilePath(llmProvider.Name));
+        _logger.LogInformation(
+            "Loading article prompt for provider {LlmProvider} from {PromptPath}.",
+            llmProvider.Name,
+            promptPath);
         string prompt = await File.ReadAllTextAsync(promptPath, cancellationToken);
         GeneratedArticle article =
             await llmProvider.GenerateArticleAsync(prompt, cancellationToken);
@@ -124,5 +128,16 @@ public sealed class ContentGeneratorService : IContentGeneratorService
         return Path.IsPathRooted(path)
             ? path
             : Path.GetFullPath(path, _hostEnvironment.ContentRootPath);
+    }
+
+    private string GetPromptFilePath(string providerName)
+    {
+        KeyValuePair<string, string> providerPrompt = _options.ProviderPromptFilePaths
+            .FirstOrDefault(item =>
+                string.Equals(item.Key, providerName, StringComparison.OrdinalIgnoreCase));
+
+        return string.IsNullOrWhiteSpace(providerPrompt.Value)
+            ? _options.PromptFilePath
+            : providerPrompt.Value;
     }
 }

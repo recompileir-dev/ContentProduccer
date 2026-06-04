@@ -10,5 +10,7 @@ public sealed class ContentGenerationOptions
 
     public string PromptFilePath { get; init; } = "prompts/article-simple-fa.md";
 
+    public Dictionary<string, string> ProviderPromptFilePaths { get; init; } = new();
+
     public string ImagePromptFilePath { get; init; } = "prompts/article-image-fa.md";
 }

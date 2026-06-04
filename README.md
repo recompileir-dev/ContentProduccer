@@ -58,6 +58,9 @@ Configure the active providers and prompt paths in
     "LlmProvider": "OpenAI",
     "ImageProvider": "OpenAI",
     "PromptFilePath": "prompts/article-simple-fa.md",
+    "ProviderPromptFilePaths": {
+      "Groq": "prompts/article-news-groq-fa.md"
+    },
     "ImagePromptFilePath": "prompts/article-image-fa.md"
   },
   "OpenAI": {
@@ -68,7 +71,10 @@ Configure the active providers and prompt paths in
     "ImageQuality": "low"
   },
   "Groq": {
-    "WriterModel": "llama-3.3-70b-versatile",
+    "WriterModel": "openai/gpt-oss-120b",
+    "MaxCompletionTokens": 5000,
+    "MinimumArticleHtmlCharacters": 4500,
+    "RejectShortArticles": true,
     "EnableWebResearch": true,
     "ResearchModel": "groq/compound-mini",
     "ResearchModelVersion": "2025-07-23",
@@ -91,6 +97,10 @@ published without calling an image API. Choose the active article prompt with:
 ```json
 "PromptFilePath": "prompts/article-news-fa.md"
 ```
+
+`PromptFilePath` is the default prompt. A provider can override it through
+`ProviderPromptFilePaths`; the included Groq override uses a more explicit
+prompt for article depth, structure, and minimum length.
 
 When using OpenAI for fresh news research, also set `OpenAI:EnableWebSearch` to
 `true`. Groq performs web research with `groq/compound-mini`, then uses its
