@@ -1,30 +1,30 @@
-# تولید مقاله و تصاویر با OpenAI
+# OpenAI Content Generation
 
-## جریان اجرا
+## Execution Flow
 
-در هر اجرای زمان‌بندی‌شده:
+On each scheduled or command-line run:
 
-1. فایل پرامپ مقاله از روی هاست خوانده می‌شود.
-2. پرامپ به OpenAI Responses API ارسال می‌شود.
-3. در صورت فعال بودن `EnableWebSearch`، مدل برای تحقیق درباره خبرهای تازه از ابزار جست‌وجوی وب استفاده می‌کند.
-4. مقاله تولیدشده به سرویس ساخت تصویر داده می‌شود.
-5. چند تصویر هماهنگ برای کاروسل اینستاگرام با OpenAI Image API ساخته می‌شوند.
-6. مقاله شامل عنوان، بدنه HTML و کپشن اینستاگرام به‌صورت ساخت‌یافته دریافت می‌شود.
-7. مقاله و تصاویر روی دیسک Worker ذخیره نمی‌شوند و مستقیماً به سرویس‌های انتشار داده می‌شوند.
+1. The article prompt is read from a file on the host.
+2. The prompt is sent to the OpenAI Responses API.
+3. When `EnableWebSearch` is enabled, the model researches fresh news before writing.
+4. The generated article is inserted into the editable image prompt template.
+5. One horizontal website article image is generated with the OpenAI Image API.
+6. The article, social caption, and image are passed directly to the publishing services.
 
-## تنظیم کلید API
+The Worker does not save generated article or image files to disk.
 
-کلید API نباید داخل مخزن Git یا فایل `appsettings.json` ثبت شود. روی هاست لینوکسی متغیر محیطی زیر را تنظیم کنید:
+## API Key
+
+Do not commit the OpenAI API key to Git. Set it on the host:
 
 ```bash
 export OPENAI_API_KEY="your-api-key"
 ```
 
-استفاده رایگان از ChatGPT به‌معنی اعتبار رایگان OpenAI API نیست. مدل‌های کوچک‌تر هزینه را کاهش می‌دهند، اما برای اجرای API همچنان باید پروژه API دارای اعتبار یا Billing فعال باشد.
+OpenAI API billing is separate from a free ChatGPT account. The environment
+variable name can be changed with `OpenAI:ApiKeyEnvironmentVariable`.
 
-نام متغیر محیطی از طریق `OpenAI:ApiKeyEnvironmentVariable` قابل تغییر است. برای محیط‌هایی که امکان تعریف متغیر محیطی ندارند، تنظیم `OpenAI:ApiKey` نیز پشتیبانی می‌شود، اما فایل حاوی آن نباید وارد Git شود.
-
-## تنظیمات
+## Settings
 
 ```json
 {
@@ -33,39 +33,46 @@ export OPENAI_API_KEY="your-api-key"
     "BaseUrl": "https://api.openai.com/v1/",
     "ArticleModel": "gpt-5-mini",
     "ImageModel": "gpt-image-1-mini",
-    "EnableWebSearch": false,
-    "ImageCount": 2,
-    "ImageSize": "1024x1024",
+    "EnableWebSearch": true,
+    "ImageSize": "1536x1024",
     "ImageQuality": "low",
-    "PromptFilePath": "prompts/article-simple-fa.md"
+    "PromptFilePath": "prompts/article-news-fa.md",
+    "ImagePromptFilePath": "prompts/article-image-fa.md"
   }
 }
 ```
 
-مسیرهای نسبی نسبت به پوشه اجرای Worker محاسبه می‌شوند. مسیر مطلق نیز برای فایل پرامپ و پوشه خروجی قابل استفاده است.
+The image prompt requests a composition suitable for display at 790 pixels
+wide. The API request uses `1536x1024`, a supported landscape output size.
 
-## فایل نمونه پرامپ
+## Prompt Files
 
-پرامپ ساده برای تست در مسیر زیر قرار دارد:
+- `prompts/article-simple-fa.md`: simple article prompt for local testing
+- `prompts/article-news-fa.md`: news prompt that examines two or three fresh AI-life-impact news items
+- `prompts/article-image-fa.md`: editable website image prompt
 
-```text
-src/ContentProducer.Worker/prompts/article-simple-fa.md
-```
+Change `OpenAI:PromptFilePath` to select the article prompt. Change
+`OpenAI:ImagePromptFilePath` to select or customize the image prompt. Prompt
+files are copied during build and publish, so they can be edited on the host
+without changing application code.
 
-پرامپ کامل خبری در مسیر زیر حفظ شده است:
+The image prompt supports these placeholders:
 
-```text
-src/ContentProducer.Worker/prompts/article-news-fa.md
-```
+- `{{title}}`
+- `{{focusKeyphrase}}`
+- `{{articleHtml}}`
 
-برای انتخاب پرامپ فقط مقدار `OpenAI:PromptFilePath` را در `appsettings.json` تغییر دهید. برای پرامپ خبری، `EnableWebSearch` را نیز روی `true` قرار دهید. این فایل‌ها هنگام Build و Publish همراه برنامه کپی می‌شوند و می‌توان آن‌ها را روی هاست بدون تغییر کد ویرایش کرد.
+## Structured Article Output
 
-## خروجی ساخت‌یافته مقاله
+The article prompt must return valid JSON containing:
 
-پرامپ باید خروجی JSON با فیلدهای زیر تولید کند:
+- `title`
+- `articleHtml`
+- `instagramCaption`
+- `focusKeyphrase`
+- `seoTitle`
+- `metaDescription`
+- `references`
 
-- `title`: عنوان پست وردپرس
-- `articleHtml`: بدنه HTML مقاله برای وردپرس
-- `instagramCaption`: خلاصه چند خطی مناسب کپشن اینستاگرام
-
-تصاویر در حافظه برنامه نگهداری می‌شوند و مستقیماً به Media Library وردپرس آپلود می‌شوند.
+The generated image remains in application memory until it is uploaded to the
+WordPress Media Library.

@@ -1,3 +1,3 @@
 namespace ContentProducer.Worker;
 
-public sealed record GeneratedImage(int SlideNumber, byte[] Content);
+public sealed record GeneratedImage(byte[] Content);

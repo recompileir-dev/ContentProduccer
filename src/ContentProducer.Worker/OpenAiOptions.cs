@@ -16,11 +16,11 @@ public sealed class OpenAiOptions
 
     public bool EnableWebSearch { get; init; }
 
-    public int ImageCount { get; init; } = 2;
-
-    public string ImageSize { get; init; } = "1024x1024";
+    public string ImageSize { get; init; } = "1536x1024";
 
     public string ImageQuality { get; init; } = "low";
 
     public string PromptFilePath { get; init; } = "prompts/article-simple-fa.md";
+
+    public string ImagePromptFilePath { get; init; } = "prompts/article-image-fa.md";
 }

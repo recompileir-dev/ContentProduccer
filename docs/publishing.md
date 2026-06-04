@@ -2,19 +2,17 @@
 
 ## Flow
 
-1. OpenAI generates the article, Instagram-style summary, and carousel images.
-2. Images are kept in memory and are not written to the Worker disk.
-3. Only the first image is uploaded directly to the WordPress Media Library.
+1. OpenAI generates the article, Instagram-style summary, and one article image.
+2. The image is kept in memory and is not written to the Worker disk.
+3. The image is uploaded directly to the WordPress Media Library.
 4. The WordPress post is published with that image as featured media and as an image inside the post content.
 5. The WordPress post link is read from the WordPress REST API response.
-6. Instagram receives the generated images as a carousel.
+6. Instagram receives the generated image as a single-image post.
 7. Instagram caption contains the summary and the original WordPress post URL.
-8. Telegram receives the generated images, summary, and original WordPress post link.
+8. Telegram receives the generated image, summary, and original WordPress post link.
 
 The Worker does not save article or image files locally. WordPress Media Library
-contains the single image used by the WordPress post and Telegram. Instagram
-carousel publishing is skipped when fewer than two public image URLs are
-available.
+contains the single image used by the WordPress, Instagram, and Telegram posts.
 
 ## Manual Test Without Scheduler
 
@@ -32,7 +30,7 @@ dotnet run --project src/ContentProducer.Worker -- run-once --skip-instagram --s
 
 In this mode, `INSTAGRAM_ACCESS_TOKEN` and `TELEGRAM_BOT_TOKEN` are not needed.
 
-Run the included example article and images without calling OpenAI:
+Run the included example article and image without calling OpenAI:
 
 ```bash
 dotnet run --project src/ContentProducer.Worker -- run-once --use-fixture --skip-instagram
@@ -49,7 +47,7 @@ Fixture mode can also be enabled in `appsettings.json`:
   "ContentSource": {
     "UseFixture": true,
     "FixtureArticleFilePath": "fixtures/article-example.json",
-    "FixtureImagesDirectory": "fixtures/images"
+    "FixtureImageFilePath": "fixtures/images/article-image.png"
   }
 }
 ```
@@ -136,12 +134,10 @@ Add the bot to the target channel and allow it to post messages. `ChannelChatId`
 can be a public channel username such as `@recompile_ir` or a numeric channel
 ID.
 
-If there is one image, the service uses `sendPhoto`. If there are multiple
-images, it uses `sendMediaGroup` and puts the caption on the first image.
+The service uses `sendPhoto` to publish the image and caption.
 
 ## Practical Notes
 
 - WordPress media URLs must be publicly reachable without authentication.
-- Instagram carousel publishing requires between 2 and 10 images.
-- Telegram media groups support up to 10 images.
+- Instagram and Telegram use the public image URL returned by WordPress.
 - Tokens and application passwords must not be committed to Git.

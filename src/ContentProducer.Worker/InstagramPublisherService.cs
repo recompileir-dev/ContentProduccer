@@ -22,71 +22,46 @@ public sealed class InstagramPublisherService : IInstagramPublisherService
         };
     }
 
-    public async Task PublishCarouselAsync(
+    public async Task PublishPostAsync(
         string caption,
-        IReadOnlyList<string> imageUrls,
+        string imageUrl,
         CancellationToken cancellationToken)
     {
         string accessToken = GetAccessToken(_options);
-
-        if (imageUrls.Count < 2 || imageUrls.Count > 10)
-        {
-            throw new InvalidOperationException(
-                "Instagram carousel publishing requires between 2 and 10 images.");
-        }
-
-        List<string> childContainerIds = new(imageUrls.Count);
-
-        foreach (string imageUrl in imageUrls)
-        {
-            string childId = await CreateMediaContainerAsync(
-                accessToken,
-                new Dictionary<string, string>
-                {
-                    ["image_url"] = imageUrl,
-                    ["is_carousel_item"] = "true"
-                },
-                cancellationToken);
-
-            childContainerIds.Add(childId);
-            await WaitForContainerAsync(childId, accessToken, cancellationToken);
-        }
-
-        string carouselId = await CreateMediaContainerAsync(
+        string containerId = await CreateMediaContainerAsync(
             accessToken,
-            new Dictionary<string, string>
-            {
-                ["media_type"] = "CAROUSEL",
-                ["caption"] = caption,
-                ["children"] = string.Join(",", childContainerIds)
-            },
+            imageUrl,
+            caption,
             cancellationToken);
 
-        await WaitForContainerAsync(carouselId, accessToken, cancellationToken);
+        await WaitForContainerAsync(containerId, accessToken, cancellationToken);
 
         await PostFormAsync(
             $"{ApiPath()}/media_publish",
             new Dictionary<string, string>
             {
-                ["creation_id"] = carouselId,
+                ["creation_id"] = containerId,
                 ["access_token"] = accessToken
             },
             cancellationToken);
 
-        _logger.LogInformation(
-            "Published Instagram carousel with {ImageCount} images.",
-            imageUrls.Count);
+        _logger.LogInformation("Published Instagram image post.");
     }
 
     private async Task<string> CreateMediaContainerAsync(
         string accessToken,
-        Dictionary<string, string> values,
+        string imageUrl,
+        string caption,
         CancellationToken cancellationToken)
     {
-        values["access_token"] = accessToken;
         using JsonDocument response = await PostFormAsync(
             $"{ApiPath()}/media",
-            values,
+            new Dictionary<string, string>
+            {
+                ["image_url"] = imageUrl,
+                ["caption"] = caption,
+                ["access_token"] = accessToken
+            },
             cancellationToken);
 
         return response.RootElement.GetProperty("id").GetString()

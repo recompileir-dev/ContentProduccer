@@ -5,13 +5,6 @@ namespace ContentProducer.Worker;
 
 public sealed class ContentGeneratorService : IContentGeneratorService
 {
-    private static readonly string[] SupportedImageExtensions =
-    {
-        ".png",
-        ".jpg",
-        ".jpeg"
-    };
-
     private static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerDefaults.Web);
 
     private readonly IOpenAiArticleService _articleService;
@@ -51,16 +44,16 @@ public sealed class ContentGeneratorService : IContentGeneratorService
         string prompt = await File.ReadAllTextAsync(promptPath, cancellationToken);
         GeneratedArticle article =
             await _articleService.GenerateArticleAsync(prompt, cancellationToken);
-        IReadOnlyList<GeneratedImage> images =
-            await _imageService.GenerateCarouselImagesAsync(article, cancellationToken);
+        GeneratedImage image =
+            await _imageService.GenerateImageAsync(article, cancellationToken);
 
-        return new GeneratedContent(NormalizeArticle(article), images);
+        return new GeneratedContent(NormalizeArticle(article), image);
     }
 
     private async Task<GeneratedContent> LoadFixtureAsync(CancellationToken cancellationToken)
     {
         string articlePath = ResolvePath(_contentSourceOptions.FixtureArticleFilePath);
-        string imagesDirectory = ResolvePath(_contentSourceOptions.FixtureImagesDirectory);
+        string imagePath = ResolvePath(_contentSourceOptions.FixtureImageFilePath);
 
         string articleJson = await File.ReadAllTextAsync(articlePath, cancellationToken);
         GeneratedArticle? article = JsonSerializer.Deserialize<GeneratedArticle>(
@@ -76,34 +69,20 @@ public sealed class ContentGeneratorService : IContentGeneratorService
                 $"Fixture article file '{articlePath}' is invalid.");
         }
 
-        string[] imagePaths = Directory
-            .EnumerateFiles(imagesDirectory)
-            .Where(path => SupportedImageExtensions.Contains(
-                Path.GetExtension(path),
-                StringComparer.OrdinalIgnoreCase))
-            .OrderBy(path => path, StringComparer.OrdinalIgnoreCase)
-            .ToArray();
-
-        if (imagePaths.Length == 0)
+        if (!File.Exists(imagePath))
         {
             throw new InvalidOperationException(
-                $"Fixture images directory '{imagesDirectory}' contains no supported images.");
+                $"Fixture image file '{imagePath}' does not exist.");
         }
 
-        List<GeneratedImage> images = new(imagePaths.Length);
-
-        for (int index = 0; index < imagePaths.Length; index++)
-        {
-            byte[] content = await File.ReadAllBytesAsync(imagePaths[index], cancellationToken);
-            images.Add(new GeneratedImage(index + 1, content));
-        }
+        byte[] imageContent = await File.ReadAllBytesAsync(imagePath, cancellationToken);
+        GeneratedImage image = new(imageContent);
 
         _logger.LogInformation(
-            "Loaded fixture article and {ImageCount} image(s) from {ImagesDirectory}.",
-            images.Count,
-            imagesDirectory);
+            "Loaded fixture article and image from {ImagePath}.",
+            imagePath);
 
-        return new GeneratedContent(NormalizeArticle(article), images);
+        return new GeneratedContent(NormalizeArticle(article), image);
     }
 
     private static GeneratedArticle NormalizeArticle(GeneratedArticle article)

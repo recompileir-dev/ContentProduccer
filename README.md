@@ -12,11 +12,11 @@ a configured time every day.
 - Reads an article prompt from a file on the host
 - Generates a Persian article using the OpenAI Responses API
 - Uses OpenAI web search for fresh news research
-- Generates Instagram carousel images using the OpenAI Image API
-- Uploads generated images directly to the WordPress Media Library
-- Publishes the article to WordPress with the first image as featured media
-- Publishes the generated images as an Instagram carousel
-- Publishes the generated images and summary to a Telegram channel
+- Generates one website article image using the OpenAI Image API
+- Uploads the generated image directly to the WordPress Media Library
+- Publishes the article to WordPress with the image as featured media
+- Publishes the generated image and summary to Instagram
+- Publishes the generated image and summary to a Telegram channel
 - Uses the generated Instagram caption without saving article or image files locally
 
 This version does not use a database, distributed lock, retry policy, or
@@ -46,7 +46,7 @@ OpenAI API billing is separate from a free ChatGPT account. A smaller model
 reduces cost, but API requests still require an API project with available
 credit or billing.
 
-Configure OpenAI models, prompt path, and image count in
+Configure OpenAI models and prompt paths in
 `src/ContentProducer.Worker/appsettings.json`:
 
 ```json
@@ -55,8 +55,10 @@ Configure OpenAI models, prompt path, and image count in
     "ArticleModel": "gpt-5-mini",
     "ImageModel": "gpt-image-1-mini",
     "EnableWebSearch": false,
-    "ImageCount": 2,
-    "PromptFilePath": "prompts/article-simple-fa.md"
+    "ImageSize": "1536x1024",
+    "ImageQuality": "low",
+    "PromptFilePath": "prompts/article-simple-fa.md",
+    "ImagePromptFilePath": "prompts/article-image-fa.md"
   }
 }
 ```
@@ -78,9 +80,13 @@ For the full news prompt, use:
 The prompt selection is stored directly in `appsettings.json`; no environment
 variable is required for it.
 
+The image prompt is also editable without changing code. It asks the model to
+compose a horizontal article image suitable for display at 790 pixels wide.
+The API request uses the supported landscape output size `1536x1024`.
+
 ## Test With Example Content
 
-The project includes an example article and example images under
+The project includes an example article and example image under
 `src/ContentProducer.Worker/fixtures`. To publish this example without calling
 OpenAI, run:
 
@@ -101,7 +107,7 @@ You can also enable fixture loading in `appsettings.json`:
 "ContentSource": {
   "UseFixture": true,
   "FixtureArticleFilePath": "fixtures/article-example.json",
-  "FixtureImagesDirectory": "fixtures/images"
+  "FixtureImageFilePath": "fixtures/images/article-image.png"
 }
 ```
 
@@ -124,8 +130,9 @@ Then run:
 dotnet run --project src/ContentProducer.Worker
 ```
 
-Each run sends generated content directly to WordPress and Instagram. The
-WordPress Media Library provides public image URLs required by Instagram.
+Each run sends generated content directly to WordPress, Instagram, and
+Telegram. The WordPress Media Library provides the public image URL required by
+the social publishing APIs.
 
 ## Local Test Without Scheduler
 

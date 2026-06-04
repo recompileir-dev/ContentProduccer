@@ -4,9 +4,9 @@ public interface IWordPressPublisherService
 {
     Task ValidateConnectionAsync(CancellationToken cancellationToken);
 
-    Task<IReadOnlyList<WordPressMedia>> UploadImagesAsync(
+    Task<WordPressMedia> UploadImageAsync(
         GeneratedArticle article,
-        IReadOnlyList<GeneratedImage> images,
+        GeneratedImage image,
         CancellationToken cancellationToken);
 
     Task<WordPressPost> PublishPostAsync(

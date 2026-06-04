@@ -6,81 +6,63 @@ namespace ContentProducer.Worker;
 public sealed class OpenAiImageService : IOpenAiImageService
 {
     private readonly OpenAiApiClient _apiClient;
+    private readonly IHostEnvironment _hostEnvironment;
     private readonly ILogger<OpenAiImageService> _logger;
     private readonly OpenAiOptions _options;
 
     public OpenAiImageService(
         OpenAiApiClient apiClient,
+        IHostEnvironment hostEnvironment,
         IOptions<OpenAiOptions> options,
         ILogger<OpenAiImageService> logger)
     {
         _apiClient = apiClient;
+        _hostEnvironment = hostEnvironment;
         _logger = logger;
         _options = options.Value;
     }
 
-    public async Task<IReadOnlyList<GeneratedImage>> GenerateCarouselImagesAsync(
+    public async Task<GeneratedImage> GenerateImageAsync(
         GeneratedArticle article,
         CancellationToken cancellationToken)
     {
-        if (_options.ImageCount < 1)
-        {
-            throw new InvalidOperationException("OpenAI:ImageCount must be at least 1.");
-        }
+        _logger.LogInformation(
+            "Generating article image with OpenAI model {Model}.",
+            _options.ImageModel);
 
-        List<GeneratedImage> images = new(_options.ImageCount);
+        string promptTemplatePath = ResolvePath(_options.ImagePromptFilePath);
+        string promptTemplate = await File.ReadAllTextAsync(
+            promptTemplatePath,
+            cancellationToken);
+        string prompt = promptTemplate
+            .Replace("{{title}}", article.Title, StringComparison.Ordinal)
+            .Replace("{{articleHtml}}", article.ArticleHtml, StringComparison.Ordinal)
+            .Replace(
+                "{{focusKeyphrase}}",
+                WordPressContentFormatter.GetFocusKeyphrase(article),
+                StringComparison.Ordinal);
 
-        for (int slideNumber = 1; slideNumber <= _options.ImageCount; slideNumber++)
-        {
-            _logger.LogInformation(
-                "Generating carousel image {SlideNumber} of {ImageCount} with model {Model}.",
-                slideNumber,
-                _options.ImageCount,
-                _options.ImageModel);
+        using JsonDocument response = await _apiClient.PostAsync(
+            "images/generations",
+            new
+            {
+                model = _options.ImageModel,
+                prompt,
+                n = 1,
+                size = _options.ImageSize,
+                quality = _options.ImageQuality
+            },
+            cancellationToken);
 
-            string prompt = BuildImagePrompt(article, slideNumber, _options.ImageCount);
-
-            using JsonDocument response = await _apiClient.PostAsync(
-                "images/generations",
-                new
-                {
-                    model = _options.ImageModel,
-                    prompt,
-                    n = 1,
-                    size = _options.ImageSize,
-                    quality = _options.ImageQuality
-                },
-                cancellationToken);
-
-            string base64 = ExtractBase64Image(response.RootElement);
-            images.Add(new GeneratedImage(slideNumber, Convert.FromBase64String(base64)));
-        }
-
-        return images;
+        string base64 = ExtractBase64Image(response.RootElement);
+        return new GeneratedImage(Convert.FromBase64String(base64));
     }
 
-    private static string BuildImagePrompt(
-        GeneratedArticle article,
-        int slideNumber,
-        int imageCount)
+    private string ResolvePath(string path)
     {
-        return string.Join(
-            Environment.NewLine,
-            $"Create slide {slideNumber} of {imageCount} for a coherent Instagram carousel based on",
-            "the Persian article below.",
-            string.Empty,
-            "Requirements:",
-            "- Use a consistent modern editorial visual style across all slides.",
-            "- Make the composition suitable for an Instagram square carousel.",
-            "- Use strong visual storytelling and leave safe margins around important elements.",
-            "- Do not include logos, watermarks, UI elements, or readable text.",
-            "- Each slide must be visually distinct while clearly belonging to the same carousel.",
-            string.Empty,
-            "Title:",
-            article.Title,
-            string.Empty,
-            "Article:",
-            article.ArticleHtml);
+        return Path.IsPathRooted(path)
+            ? path
+            : Path.GetFullPath(path, _hostEnvironment.ContentRootPath);
     }
 
     private static string ExtractBase64Image(JsonElement root)

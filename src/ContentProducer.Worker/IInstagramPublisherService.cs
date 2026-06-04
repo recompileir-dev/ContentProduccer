@@ -2,8 +2,8 @@ namespace ContentProducer.Worker;
 
 public interface IInstagramPublisherService
 {
-    Task PublishCarouselAsync(
+    Task PublishPostAsync(
         string caption,
-        IReadOnlyList<string> imageUrls,
+        string imageUrl,
         CancellationToken cancellationToken);
 }

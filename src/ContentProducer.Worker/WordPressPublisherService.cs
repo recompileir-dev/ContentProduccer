@@ -33,46 +33,37 @@ public sealed class WordPressPublisherService : IWordPressPublisherService
         _logger.LogInformation("WordPress REST API authentication is valid.");
     }
 
-    public async Task<IReadOnlyList<WordPressMedia>> UploadImagesAsync(
+    public async Task<WordPressMedia> UploadImageAsync(
         GeneratedArticle article,
-        IReadOnlyList<GeneratedImage> images,
+        GeneratedImage image,
         CancellationToken cancellationToken)
     {
-        List<WordPressMedia> mediaItems = new(images.Count);
+        const string fileName = "article-image.png";
+        using HttpRequestMessage request = new(HttpMethod.Post, "wp-json/wp/v2/media");
 
-        foreach (GeneratedImage image in images)
+        ByteArrayContent content = new(image.Content);
+        content.Headers.ContentType = new MediaTypeHeaderValue("image/png");
+        content.Headers.ContentDisposition = new ContentDispositionHeaderValue("attachment")
         {
-            string fileName = $"carousel-{image.SlideNumber:00}.png";
-            using HttpRequestMessage request = new(HttpMethod.Post, "wp-json/wp/v2/media");
+            FileName = fileName
+        };
+        request.Content = content;
 
-            ByteArrayContent content = new(image.Content);
-            content.Headers.ContentType = new MediaTypeHeaderValue("image/png");
-            content.Headers.ContentDisposition = new ContentDispositionHeaderValue("attachment")
-            {
-                FileName = fileName
-            };
-            request.Content = content;
+        using HttpResponseMessage response =
+            await _httpClient.SendAsync(request, cancellationToken);
+        string responseBody = await response.Content.ReadAsStringAsync(cancellationToken);
+        EnsureSuccess(response, responseBody, "upload WordPress media");
 
-            using HttpResponseMessage response =
-                await _httpClient.SendAsync(request, cancellationToken);
-            string responseBody = await response.Content.ReadAsStringAsync(cancellationToken);
-            EnsureSuccess(response, responseBody, "upload WordPress media");
+        using JsonDocument document = JsonDocument.Parse(responseBody);
+        int id = document.RootElement.GetProperty("id").GetInt32();
+        string sourceUrl = document.RootElement.GetProperty("source_url").GetString()
+            ?? throw new InvalidOperationException("WordPress media response has no source_url.");
 
-            using JsonDocument document = JsonDocument.Parse(responseBody);
-            int id = document.RootElement.GetProperty("id").GetInt32();
-            string sourceUrl = document.RootElement.GetProperty("source_url").GetString()
-                ?? throw new InvalidOperationException("WordPress media response has no source_url.");
+        await UpdateMediaMetadataAsync(id, article, cancellationToken);
 
-            await UpdateMediaMetadataAsync(id, article, cancellationToken);
+        _logger.LogInformation("Uploaded WordPress article image {MediaId}.", id);
 
-            mediaItems.Add(new WordPressMedia(id, sourceUrl));
-            _logger.LogInformation(
-                "Uploaded WordPress media {MediaId} for carousel slide {SlideNumber}.",
-                id,
-                image.SlideNumber);
-        }
-
-        return mediaItems;
+        return new WordPressMedia(id, sourceUrl);
     }
 
     public async Task<WordPressPost> PublishPostAsync(

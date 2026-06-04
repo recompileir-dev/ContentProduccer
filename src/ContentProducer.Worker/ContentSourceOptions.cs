@@ -8,5 +8,5 @@ public sealed class ContentSourceOptions
 
     public string FixtureArticleFilePath { get; init; } = "fixtures/article-example.json";
 
-    public string FixtureImagesDirectory { get; init; } = "fixtures/images";
+    public string FixtureImageFilePath { get; init; } = "fixtures/images/article-image.png";
 }

@@ -38,7 +38,7 @@ public sealed class ContentProductionService : IContentProductionService
 
         GeneratedContent content = await _contentGeneratorService.GenerateAsync(cancellationToken);
         GeneratedArticle article = content.Article;
-        IReadOnlyList<GeneratedImage> images = content.Images;
+        GeneratedImage image = content.Image;
 
         if (!_publishingOptions.PublishToWordPress)
         {
@@ -46,19 +46,14 @@ public sealed class ContentProductionService : IContentProductionService
             return;
         }
 
-        IReadOnlyList<WordPressMedia> media = await _wordPressPublisherService.UploadImagesAsync(
+        WordPressMedia media = await _wordPressPublisherService.UploadImageAsync(
             article,
-            images.Take(1).ToArray(),
+            image,
             cancellationToken);
-
-        if (media.Count == 0)
-        {
-            throw new InvalidOperationException("No images were uploaded to WordPress.");
-        }
 
         WordPressPost wordPressPost = await _wordPressPublisherService.PublishPostAsync(
             article,
-            media[0],
+            media,
             cancellationToken);
 
         string instagramCaption = SocialCaptionFormatter.BuildInstagramCaption(
@@ -67,20 +62,14 @@ public sealed class ContentProductionService : IContentProductionService
         string telegramCaption = SocialCaptionFormatter.BuildTelegramCaption(
             article,
             wordPressPost.Link);
-        string[] imageUrls = media.Select(item => item.SourceUrl).ToArray();
+        string imageUrl = media.SourceUrl;
 
-        if (_publishingOptions.PublishToInstagram && imageUrls.Length >= 2)
+        if (_publishingOptions.PublishToInstagram)
         {
-            await _instagramPublisherService.PublishCarouselAsync(
+            await _instagramPublisherService.PublishPostAsync(
                 instagramCaption,
-                imageUrls,
+                imageUrl,
                 cancellationToken);
-        }
-        else if (_publishingOptions.PublishToInstagram)
-        {
-            _logger.LogWarning(
-                "Instagram publishing was skipped because only {ImageCount} public image URL is available.",
-                imageUrls.Length);
         }
         else
         {
@@ -91,7 +80,7 @@ public sealed class ContentProductionService : IContentProductionService
         {
             await _telegramPublisherService.PublishPostAsync(
                 telegramCaption,
-                imageUrls,
+                imageUrl,
                 cancellationToken);
         }
         else
