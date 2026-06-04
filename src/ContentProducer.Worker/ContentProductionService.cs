@@ -31,6 +31,11 @@ public sealed class ContentProductionService : IContentProductionService
             "Content production service started at {StartedAt}.",
             DateTimeOffset.Now);
 
+        if (_publishingOptions.PublishToWordPress)
+        {
+            await _wordPressPublisherService.ValidateConnectionAsync(cancellationToken);
+        }
+
         GeneratedContent content = await _contentGeneratorService.GenerateAsync(cancellationToken);
         GeneratedArticle article = content.Article;
         IReadOnlyList<GeneratedImage> images = content.Images;

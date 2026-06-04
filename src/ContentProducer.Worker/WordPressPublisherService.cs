@@ -22,6 +22,17 @@ public sealed class WordPressPublisherService : IWordPressPublisherService
         _httpClient = CreateHttpClient(_options);
     }
 
+    public async Task ValidateConnectionAsync(CancellationToken cancellationToken)
+    {
+        using HttpResponseMessage response = await _httpClient.GetAsync(
+            "wp-json/wp/v2/users/me?context=edit",
+            cancellationToken);
+        string responseBody = await response.Content.ReadAsStringAsync(cancellationToken);
+        EnsureSuccess(response, responseBody, "validate WordPress REST API authentication");
+
+        _logger.LogInformation("WordPress REST API authentication is valid.");
+    }
+
     public async Task<IReadOnlyList<WordPressMedia>> UploadImagesAsync(
         GeneratedArticle article,
         IReadOnlyList<GeneratedImage> images,
@@ -129,6 +140,10 @@ public sealed class WordPressPublisherService : IWordPressPublisherService
             Timeout = TimeSpan.FromMinutes(5)
         };
 
+        client.DefaultRequestHeaders.Accept.Add(
+            new MediaTypeWithQualityHeaderValue("application/json"));
+        client.DefaultRequestHeaders.UserAgent.ParseAdd("ContentProducer/1.0");
+
         string credentials = Convert.ToBase64String(
             Encoding.UTF8.GetBytes($"{options.Username}:{password}"));
         client.DefaultRequestHeaders.Authorization =
@@ -144,8 +159,34 @@ public sealed class WordPressPublisherService : IWordPressPublisherService
     {
         if (!response.IsSuccessStatusCode)
         {
+            string contentType = response.Content.Headers.ContentType?.MediaType ?? "unknown";
+            string responseSummary = SummarizeResponseBody(responseBody);
+
             throw new InvalidOperationException(
-                $"Failed to {operation}. Status {(int)response.StatusCode}: {responseBody}");
+                $"Failed to {operation}. Status {(int)response.StatusCode}, " +
+                $"content type '{contentType}'. Response: {responseSummary}");
         }
+    }
+
+    private static string SummarizeResponseBody(string responseBody)
+    {
+        const int maxLength = 800;
+
+        string summary = responseBody
+            .Replace("\r", " ")
+            .Replace("\n", " ")
+            .Trim();
+
+        while (summary.Contains("  ", StringComparison.Ordinal))
+        {
+            summary = summary.Replace("  ", " ");
+        }
+
+        if (summary.Length <= maxLength)
+        {
+            return summary;
+        }
+
+        return summary.Substring(0, maxLength) + "...";
     }
 }

@@ -8,4 +8,5 @@ run-local-wordpress-test.ps1
 run-local-wordpress-test.log
 run-local-fixture-test.ps1
 run-local-fixture-test.log
+run-local-fixture-test*.ps1
 src/ContentProducer.Worker/pics/
