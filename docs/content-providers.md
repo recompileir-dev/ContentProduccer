@@ -82,6 +82,9 @@ export OPENAI_API_KEY="your-api-key"
     "BaseUrl": "https://api.groq.com/openai/v1/",
     "WriterModel": "openai/gpt-oss-120b",
     "MaxCompletionTokens": 5000,
+    "EnableWriterFallback": true,
+    "FallbackWriterModel": "llama-3.3-70b-versatile",
+    "FallbackMaxCompletionTokens": 4500,
     "MinimumArticleHtmlCharacters": 4500,
     "RejectShortArticles": true,
     "EnableWebResearch": true,
@@ -110,6 +113,9 @@ The Groq provider uses two stages by default:
 Despite its model ID, `openai/gpt-oss-120b` is served through the Groq API and
 uses the Groq API key and Groq billing. It is the default writer because it
 followed the long-form Persian article instructions more reliably in testing.
+The primary writer uses Groq Structured Outputs with a strict JSON Schema. If
+Groq reports `json_validate_failed` or a failed JSON generation, the provider
+retries once with `FallbackWriterModel` using JSON Object Mode.
 
 This avoids asking a Compound system to perform web research and generate a
 long JSON article in one request, which can result in HTTP `413 Request Entity

@@ -73,6 +73,9 @@ Configure the active providers and prompt paths in
   "Groq": {
     "WriterModel": "openai/gpt-oss-120b",
     "MaxCompletionTokens": 5000,
+    "EnableWriterFallback": true,
+    "FallbackWriterModel": "llama-3.3-70b-versatile",
+    "FallbackMaxCompletionTokens": 4500,
     "MinimumArticleHtmlCharacters": 4500,
     "RejectShortArticles": true,
     "EnableWebResearch": true,

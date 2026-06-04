@@ -14,6 +14,12 @@ public sealed class GroqOptions
 
     public int MaxCompletionTokens { get; init; } = 5000;
 
+    public bool EnableWriterFallback { get; init; } = true;
+
+    public string FallbackWriterModel { get; init; } = "llama-3.3-70b-versatile";
+
+    public int FallbackMaxCompletionTokens { get; init; } = 4500;
+
     public int MinimumArticleHtmlCharacters { get; init; } = 4500;
 
     public bool RejectShortArticles { get; init; } = true;
