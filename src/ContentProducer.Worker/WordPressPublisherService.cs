@@ -25,7 +25,7 @@ public sealed class WordPressPublisherService : IWordPressPublisherService
     public async Task ValidateConnectionAsync(CancellationToken cancellationToken)
     {
         using HttpResponseMessage response = await _httpClient.GetAsync(
-            "wp-json/wp/v2/users/me?context=edit",
+            "wp-json/wp/v2/posts?context=edit&per_page=1",
             cancellationToken);
         string responseBody = await response.Content.ReadAsStringAsync(cancellationToken);
         EnsureSuccess(response, responseBody, "validate WordPress REST API authentication");
