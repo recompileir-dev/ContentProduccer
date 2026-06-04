@@ -15,12 +15,12 @@ The WordPress publisher now:
 
 ## Categories
 
-Configure WordPress category IDs in `appsettings.json`:
+Configure the WordPress category ID in `appsettings.json`:
 
 ```json
 {
   "WordPress": {
-    "CategoryIds": [12, 18]
+    "CategoryId": 12
   }
 }
 ```

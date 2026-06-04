@@ -15,7 +15,7 @@ public sealed class WordPressOptions
 
     public string PostStatus { get; init; } = "publish";
 
-    public int[] CategoryIds { get; init; } = Array.Empty<int>();
+    public int? CategoryId { get; init; }
 
     public string[] InternalLinkUrls { get; init; } = Array.Empty<string>();
 

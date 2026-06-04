@@ -95,9 +95,9 @@ public sealed class WordPressPublisherService : IWordPressPublisherService
             ["featured_media"] = featuredImage.Id
         };
 
-        if (_options.CategoryIds.Length > 0)
+        if (_options.CategoryId.HasValue)
         {
-            post["categories"] = _options.CategoryIds;
+            post["categories"] = new[] { _options.CategoryId.Value };
         }
 
         if (seoMeta is not null)
