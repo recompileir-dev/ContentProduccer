@@ -29,8 +29,11 @@ services:
       Groq__MaxCompletionTokens: ${GROQ_MAX_COMPLETION_TOKENS:-4096}
       Groq__EnableWebResearch: ${GROQ_ENABLE_WEB_RESEARCH:-true}
       Groq__ResearchModel: ${GROQ_RESEARCH_MODEL:-groq/compound-mini}
+      Groq__ResearchModelVersion: ${GROQ_RESEARCH_MODEL_VERSION:-2025-07-23}
       Groq__ResearchMaxCompletionTokens: ${GROQ_RESEARCH_MAX_COMPLETION_TOKENS:-2048}
+      Groq__ResearchPromptMaxCharacters: ${GROQ_RESEARCH_PROMPT_MAX_CHARACTERS:-1200}
       Groq__MaxResearchCharacters: ${GROQ_MAX_RESEARCH_CHARACTERS:-12000}
+      Groq__ContinueWithoutResearchOnFailure: ${GROQ_CONTINUE_WITHOUT_RESEARCH_ON_FAILURE:-true}
       WordPress__SiteUrl: ${WORDPRESS_SITE_URL}
       WordPress__Username: ${WORDPRESS_USERNAME}
       WordPress__CategoryId: ${WORDPRESS_CATEGORY_ID}

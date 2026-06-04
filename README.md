@@ -70,7 +70,10 @@ Configure the active providers and prompt paths in
   "Groq": {
     "WriterModel": "llama-3.3-70b-versatile",
     "EnableWebResearch": true,
-    "ResearchModel": "groq/compound-mini"
+    "ResearchModel": "groq/compound-mini",
+    "ResearchModelVersion": "2025-07-23",
+    "ResearchPromptMaxCharacters": 1200,
+    "ContinueWithoutResearchOnFailure": true
   }
 }
 ```
@@ -91,7 +94,9 @@ published without calling an image API. Choose the active article prompt with:
 
 When using OpenAI for fresh news research, also set `OpenAI:EnableWebSearch` to
 `true`. Groq performs web research with `groq/compound-mini`, then uses its
-writer model to produce the structured article.
+writer model to produce the structured article. If Compound returns HTTP `413`
+during web research, the default configuration logs a warning and lets the
+writer continue without research notes.
 
 The image prompt is also editable without changing code. It asks the model to
 compose a horizontal article image suitable for display at 790 pixels wide.

@@ -76,8 +76,11 @@ export OPENAI_API_KEY="your-api-key"
     "MaxCompletionTokens": 4096,
     "EnableWebResearch": true,
     "ResearchModel": "groq/compound-mini",
+    "ResearchModelVersion": "2025-07-23",
     "ResearchMaxCompletionTokens": 2048,
-    "MaxResearchCharacters": 12000
+    "ResearchPromptMaxCharacters": 1200,
+    "MaxResearchCharacters": 12000,
+    "ContinueWithoutResearchOnFailure": true
   }
 }
 ```
@@ -97,6 +100,15 @@ The Groq provider uses two stages by default:
 This avoids asking a Compound system to perform web research and generate a
 long JSON article in one request, which can result in HTTP `413 Request Entity
 Too Large` during internal tool execution.
+
+The research request receives only the first `ResearchPromptMaxCharacters`
+characters of the article prompt. This keeps output-format and SEO instructions
+out of the Compound web-search request. `ResearchModelVersion: 2025-07-23`
+selects Compound Basic Search, which is a better fit for this small research
+step than the more comprehensive Advanced Search used by newer versions. If
+Compound still returns HTTP `413`,
+`ContinueWithoutResearchOnFailure: true` logs a warning and lets the writer
+model continue without research notes instead of stopping the Worker.
 
 Disable web research with `EnableWebResearch: false` for prompts that do not
 need fresh information. Increase token limits only when output is truncated.

@@ -26,7 +26,8 @@ public sealed class GroqApiClient
     public async Task<JsonDocument> PostAsync(
         string relativeUrl,
         object body,
-        CancellationToken cancellationToken)
+        CancellationToken cancellationToken,
+        IReadOnlyDictionary<string, string>? headers = null)
     {
         string json = JsonSerializer.Serialize(body, JsonOptions);
         int requestBytes = Encoding.UTF8.GetByteCount(json);
@@ -34,6 +35,15 @@ public sealed class GroqApiClient
         using HttpRequestMessage request = new(HttpMethod.Post, relativeUrl);
         request.Headers.Authorization =
             new AuthenticationHeaderValue("Bearer", GetApiKey());
+
+        if (headers is not null)
+        {
+            foreach ((string name, string value) in headers)
+            {
+                request.Headers.Add(name, value);
+            }
+        }
+
         request.Content = new StringContent(json, Encoding.UTF8, "application/json");
 
         using HttpResponseMessage response =
@@ -42,14 +52,10 @@ public sealed class GroqApiClient
 
         if (!response.IsSuccessStatusCode)
         {
-            string sizeHint = response.StatusCode == System.Net.HttpStatusCode.RequestEntityTooLarge
-                ? $" Request body size: {requestBytes} UTF-8 bytes. Reduce the relevant Groq token " +
-                  "limit or shorten the selected prompt."
-                : string.Empty;
-
-            throw new InvalidOperationException(
-                $"Groq API request failed with status {(int)response.StatusCode}: " +
-                responseBody + sizeHint);
+            throw new GroqApiException(
+                response.StatusCode,
+                responseBody,
+                requestBytes);
         }
 
         return JsonDocument.Parse(responseBody);

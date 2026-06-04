@@ -1,3 +1,4 @@
+using System.Net;
 using System.Text.Json;
 using Microsoft.Extensions.Options;
 
@@ -25,9 +26,7 @@ public sealed class GroqLlmProvider : ILlmProvider
         string prompt,
         CancellationToken cancellationToken)
     {
-        string research = _options.EnableWebResearch
-            ? await ResearchAsync(prompt, cancellationToken)
-            : string.Empty;
+        string research = await GetResearchAsync(prompt, cancellationToken);
         string writerPrompt = BuildWriterPrompt(prompt, research);
 
         _logger.LogInformation(
@@ -73,18 +72,38 @@ public sealed class GroqLlmProvider : ILlmProvider
         return GeneratedArticleParser.Parse(outputText, Name);
     }
 
+    private async Task<string> GetResearchAsync(
+        string prompt,
+        CancellationToken cancellationToken)
+    {
+        if (!_options.EnableWebResearch)
+        {
+            return string.Empty;
+        }
+
+        try
+        {
+            return await ResearchAsync(prompt, cancellationToken);
+        }
+        catch (GroqApiException exception)
+            when (_options.ContinueWithoutResearchOnFailure &&
+                  exception.StatusCode == HttpStatusCode.RequestEntityTooLarge)
+        {
+            _logger.LogWarning(
+                exception,
+                "Groq web research returned HTTP 413 for a {RequestBytes}-byte request. " +
+                "Continuing with the writer model without research notes.",
+                exception.RequestBytes);
+
+            return string.Empty;
+        }
+    }
+
     private async Task<string> ResearchAsync(
         string prompt,
         CancellationToken cancellationToken)
     {
-        string researchPrompt = string.Join(
-            Environment.NewLine,
-            "Research the following Persian article request using current web sources.",
-            "Return concise research notes only. Include 2 or 3 relevant recent news items,",
-            "their publication dates, key factual details, source titles, and direct URLs.",
-            "Do not write the final article and do not return JSON.",
-            string.Empty,
-            prompt);
+        string researchPrompt = BuildResearchPrompt(prompt);
 
         _logger.LogInformation(
             "Researching article with Groq model {Model}. Prompt characters: {PromptCharacters}.",
@@ -106,7 +125,8 @@ public sealed class GroqLlmProvider : ILlmProvider
                 },
                 max_completion_tokens = _options.ResearchMaxCompletionTokens
             },
-            cancellationToken);
+            cancellationToken,
+            BuildResearchHeaders());
 
         string research = ExtractOutputText(response.RootElement);
 
@@ -126,6 +146,36 @@ public sealed class GroqLlmProvider : ILlmProvider
             research.Length);
 
         return research;
+    }
+
+    private IReadOnlyDictionary<string, string>? BuildResearchHeaders()
+    {
+        if (string.IsNullOrWhiteSpace(_options.ResearchModelVersion))
+        {
+            return null;
+        }
+
+        return new Dictionary<string, string>
+        {
+            ["Groq-Model-Version"] = _options.ResearchModelVersion
+        };
+    }
+
+    private string BuildResearchPrompt(string prompt)
+    {
+        int maxCharacters = Math.Max(1, _options.ResearchPromptMaxCharacters);
+        string topicContext = prompt.Length <= maxCharacters
+            ? prompt
+            : prompt.Substring(0, maxCharacters);
+
+        return string.Join(
+            Environment.NewLine,
+            "Use one web search to research the topic from the Persian request below.",
+            "Return concise notes for 2 or 3 recent relevant news items only.",
+            "For each item include publication date, key facts, source title, and direct URL.",
+            "Do not write the article, do not return JSON, and do not perform broad research.",
+            string.Empty,
+            topicContext);
     }
 
     private static string BuildWriterPrompt(string prompt, string research)

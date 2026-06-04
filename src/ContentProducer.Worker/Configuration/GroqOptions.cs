@@ -18,7 +18,13 @@ public sealed class GroqOptions
 
     public string ResearchModel { get; init; } = "groq/compound-mini";
 
+    public string ResearchModelVersion { get; init; } = "2025-07-23";
+
     public int ResearchMaxCompletionTokens { get; init; } = 2048;
 
+    public int ResearchPromptMaxCharacters { get; init; } = 1200;
+
     public int MaxResearchCharacters { get; init; } = 12000;
+
+    public bool ContinueWithoutResearchOnFailure { get; init; } = true;
 }
