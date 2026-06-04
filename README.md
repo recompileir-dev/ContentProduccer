@@ -68,7 +68,9 @@ Configure the active providers and prompt paths in
     "ImageQuality": "low"
   },
   "Groq": {
-    "Model": "groq/compound"
+    "WriterModel": "llama-3.3-70b-versatile",
+    "EnableWebResearch": true,
+    "ResearchModel": "groq/compound-mini"
   }
 }
 ```
@@ -87,7 +89,8 @@ be `OpenAI` or `Fixture`. Choose the active article prompt with:
 ```
 
 When using OpenAI for fresh news research, also set `OpenAI:EnableWebSearch` to
-`true`. Groq's default `groq/compound` model can use web search and other tools.
+`true`. Groq performs web research with `groq/compound-mini`, then uses its
+writer model to produce the structured article.
 
 The image prompt is also editable without changing code. It asks the model to
 compose a horizontal article image suitable for display at 790 pixels wide.

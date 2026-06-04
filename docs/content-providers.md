@@ -66,8 +66,12 @@ export OPENAI_API_KEY="your-api-key"
   "Groq": {
     "ApiKeyEnvironmentVariable": "GROQ_API_KEY",
     "BaseUrl": "https://api.groq.com/openai/v1/",
-    "Model": "groq/compound",
-    "MaxCompletionTokens": 4096
+    "WriterModel": "llama-3.3-70b-versatile",
+    "MaxCompletionTokens": 4096,
+    "EnableWebResearch": true,
+    "ResearchModel": "groq/compound-mini",
+    "ResearchMaxCompletionTokens": 2048,
+    "MaxResearchCharacters": 12000
   }
 }
 ```
@@ -78,13 +82,18 @@ Set the key:
 export GROQ_API_KEY="your-groq-api-key"
 ```
 
-The default `groq/compound` system is suitable for the news prompt because it
-can use external tools such as web search. Groq uses JSON Object Mode and the
-same article prompt and output contract as OpenAI.
+The Groq provider uses two stages by default:
 
-`MaxCompletionTokens` is intentionally lower than the model's absolute maximum.
-Requesting the full model limit can be rejected by some Groq plans or gateways.
-Increase it only when the generated article is being truncated.
+1. `groq/compound-mini` performs a focused web research request.
+2. `llama-3.3-70b-versatile` receives the original prompt plus the research
+   notes and writes the structured JSON article.
+
+This avoids asking a Compound system to perform web research and generate a
+long JSON article in one request, which can result in HTTP `413 Request Entity
+Too Large` during internal tool execution.
+
+Disable web research with `EnableWebResearch: false` for prompts that do not
+need fresh information. Increase token limits only when output is truncated.
 
 ## Code Structure
 

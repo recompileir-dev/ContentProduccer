@@ -25,8 +25,12 @@ services:
       ContentGeneration__PromptFilePath: ${ARTICLE_PROMPT_FILE_PATH:-prompts/article-news-fa.md}
       ContentGeneration__ImagePromptFilePath: ${IMAGE_PROMPT_FILE_PATH:-prompts/article-image-fa.md}
       OpenAI__EnableWebSearch: ${OPENAI_ENABLE_WEB_SEARCH:-true}
-      Groq__Model: ${GROQ_MODEL:-groq/compound}
+      Groq__WriterModel: ${GROQ_WRITER_MODEL:-llama-3.3-70b-versatile}
       Groq__MaxCompletionTokens: ${GROQ_MAX_COMPLETION_TOKENS:-4096}
+      Groq__EnableWebResearch: ${GROQ_ENABLE_WEB_RESEARCH:-true}
+      Groq__ResearchModel: ${GROQ_RESEARCH_MODEL:-groq/compound-mini}
+      Groq__ResearchMaxCompletionTokens: ${GROQ_RESEARCH_MAX_COMPLETION_TOKENS:-2048}
+      Groq__MaxResearchCharacters: ${GROQ_MAX_RESEARCH_CHARACTERS:-12000}
       WordPress__SiteUrl: ${WORDPRESS_SITE_URL}
       WordPress__Username: ${WORDPRESS_USERNAME}
       WordPress__CategoryId: ${WORDPRESS_CATEGORY_ID}

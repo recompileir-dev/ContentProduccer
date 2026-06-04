@@ -43,8 +43,8 @@ public sealed class GroqApiClient
         if (!response.IsSuccessStatusCode)
         {
             string sizeHint = response.StatusCode == System.Net.HttpStatusCode.RequestEntityTooLarge
-                ? $" Request body size: {requestBytes} UTF-8 bytes. Reduce Groq:MaxCompletionTokens " +
-                  "or shorten the selected prompt."
+                ? $" Request body size: {requestBytes} UTF-8 bytes. Reduce the relevant Groq token " +
+                  "limit or shorten the selected prompt."
                 : string.Empty;
 
             throw new InvalidOperationException(

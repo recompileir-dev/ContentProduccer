@@ -88,7 +88,9 @@ To generate articles with Groq and images with OpenAI:
 ```dotenv
 LLM_PROVIDER=Groq
 IMAGE_PROVIDER=OpenAI
-GROQ_MODEL=groq/compound
+GROQ_ENABLE_WEB_RESEARCH=true
+GROQ_RESEARCH_MODEL=groq/compound-mini
+GROQ_WRITER_MODEL=llama-3.3-70b-versatile
 ARTICLE_PROMPT_FILE_PATH=prompts/article-news-fa.md
 ```
 
