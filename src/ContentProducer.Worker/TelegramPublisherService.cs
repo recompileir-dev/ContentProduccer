@@ -44,7 +44,7 @@ public sealed class TelegramPublisherService : ITelegramPublisherService
                 ["parse_mode"] = "HTML"
             });
         using HttpResponseMessage response = await _httpClient.PostAsync(
-            $"bot{botToken}/sendPhoto",
+            BuildApiUri(botToken, "sendPhoto"),
             content,
             cancellationToken);
         string responseBody = await response.Content.ReadAsStringAsync(cancellationToken);
@@ -89,6 +89,12 @@ public sealed class TelegramPublisherService : ITelegramPublisherService
                 $"'{options.BotTokenEnvironmentVariable}'.");
         }
 
-        return botToken;
+        return botToken.Trim();
+    }
+
+    private Uri BuildApiUri(string botToken, string method)
+    {
+        string relativePath = $"./bot{botToken}/{method}";
+        return new Uri(_httpClient.BaseAddress!, relativePath);
     }
 }
