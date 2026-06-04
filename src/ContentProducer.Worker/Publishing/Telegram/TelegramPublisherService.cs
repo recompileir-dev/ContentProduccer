@@ -23,7 +23,7 @@ public sealed class TelegramPublisherService : ITelegramPublisherService
 
     public async Task PublishPostAsync(
         string caption,
-        string imageUrl,
+        string? imageUrl,
         CancellationToken cancellationToken)
     {
         string botToken = GetBotToken(_options);
@@ -33,18 +33,27 @@ public sealed class TelegramPublisherService : ITelegramPublisherService
             throw new InvalidOperationException("Telegram:ChannelChatId is required.");
         }
 
-        EnsureTelegramCaptionLength(caption);
+        bool hasImage = !string.IsNullOrWhiteSpace(imageUrl);
+        EnsureTelegramTextLength(caption, hasImage);
 
         using FormUrlEncodedContent content = new(
-            new Dictionary<string, string>
+            hasImage
+                ? new Dictionary<string, string>
+                {
+                    ["chat_id"] = _options.ChannelChatId,
+                    ["photo"] = imageUrl!,
+                    ["caption"] = caption,
+                    ["parse_mode"] = "HTML"
+                }
+                : new Dictionary<string, string>
             {
                 ["chat_id"] = _options.ChannelChatId,
-                ["photo"] = imageUrl,
-                ["caption"] = caption,
+                ["text"] = caption,
                 ["parse_mode"] = "HTML"
             });
+        string method = hasImage ? "sendPhoto" : "sendMessage";
         using HttpResponseMessage response = await _httpClient.PostAsync(
-            BuildApiUri(botToken, "sendPhoto"),
+            BuildApiUri(botToken, method),
             content,
             cancellationToken);
         string responseBody = await response.Content.ReadAsStringAsync(cancellationToken);
@@ -52,23 +61,24 @@ public sealed class TelegramPublisherService : ITelegramPublisherService
         if (!response.IsSuccessStatusCode)
         {
             throw new InvalidOperationException(
-                $"Telegram API request 'sendPhoto' failed with status " +
+                $"Telegram API request '{method}' failed with status " +
                 $"{(int)response.StatusCode}: {responseBody}");
         }
 
         _logger.LogInformation(
-            "Published Telegram image post to channel {ChannelChatId}.",
+            "Published Telegram {PostType} post to channel {ChannelChatId}.",
+            hasImage ? "image" : "text",
             _options.ChannelChatId);
     }
 
-    private static void EnsureTelegramCaptionLength(string caption)
+    private static void EnsureTelegramTextLength(string caption, bool hasImage)
     {
-        const int maxCaptionLength = 1024;
+        int maxLength = hasImage ? 1024 : 4096;
 
-        if (caption.Length > maxCaptionLength)
+        if (caption.Length > maxLength)
         {
             throw new InvalidOperationException(
-                $"Telegram caption is too long. Max: {maxCaptionLength}, actual: {caption.Length}.");
+                $"Telegram text is too long. Max: {maxLength}, actual: {caption.Length}.");
         }
     }
 

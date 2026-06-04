@@ -11,18 +11,17 @@ public static class WordPressContentFormatter
 
     public static string BuildPostContent(
         GeneratedArticle article,
-        WordPressMedia featuredImage,
+        WordPressMedia? featuredImage,
         IReadOnlyList<string> internalLinkUrls)
     {
-        string altText = WebUtility.HtmlEncode(GetFocusKeyphrase(article));
-        string imageUrl = WebUtility.HtmlEncode(featuredImage.SourceUrl);
         string articleHtml = RemoveContentReferences(article.ArticleHtml);
         string referencesHtml = BuildReferences(article.References);
         string internalLinksHtml = BuildInternalLinks(internalLinkUrls);
+        string imageHtml = BuildImage(featuredImage, article);
 
         return string.Join(
             Environment.NewLine,
-            $"<figure class=\"wp-block-image\"><img src=\"{imageUrl}\" alt=\"{altText}\" /></figure>",
+            imageHtml,
             articleHtml,
             referencesHtml,
             internalLinksHtml);
@@ -38,6 +37,21 @@ public static class WordPressContentFormatter
         return string.IsNullOrWhiteSpace(article.FocusKeyphrase)
             ? article.Title
             : article.FocusKeyphrase;
+    }
+
+    private static string BuildImage(
+        WordPressMedia? featuredImage,
+        GeneratedArticle article)
+    {
+        if (featuredImage is null)
+        {
+            return string.Empty;
+        }
+
+        string altText = WebUtility.HtmlEncode(GetFocusKeyphrase(article));
+        string imageUrl = WebUtility.HtmlEncode(featuredImage.SourceUrl);
+
+        return $"<figure class=\"wp-block-image\"><img src=\"{imageUrl}\" alt=\"{altText}\" /></figure>";
     }
 
     private static string BuildInternalLinks(IReadOnlyList<string> internalLinkUrls)

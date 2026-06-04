@@ -27,7 +27,7 @@ public sealed class OpenAiImageProvider : IImageProvider
 
     public string Name => ProviderNames.OpenAi;
 
-    public async Task<GeneratedImage> GenerateImageAsync(
+    public async Task<GeneratedImage?> GenerateImageAsync(
         GeneratedArticle article,
         CancellationToken cancellationToken)
     {

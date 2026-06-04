@@ -83,16 +83,19 @@ OPENAI_ENABLE_WEB_SEARCH=true
 ARTICLE_PROMPT_FILE_PATH=prompts/article-news-fa.md
 ```
 
-To generate articles with Groq and images with OpenAI:
+To generate articles with Groq without calling an image API:
 
 ```dotenv
 LLM_PROVIDER=Groq
-IMAGE_PROVIDER=OpenAI
+IMAGE_PROVIDER=None
 GROQ_ENABLE_WEB_RESEARCH=true
 GROQ_RESEARCH_MODEL=groq/compound-mini
 GROQ_WRITER_MODEL=llama-3.3-70b-versatile
 ARTICLE_PROMPT_FILE_PATH=prompts/article-news-fa.md
 ```
+
+Groq does not provide image generation. Use `IMAGE_PROVIDER=OpenAI` instead
+when OpenAI should generate an image for Groq articles.
 
 To temporarily disable a publishing destination:
 
@@ -176,7 +179,7 @@ docker compose logs --tail=300 content-producer
 
 - No inbound firewall port is required for this Worker.
 - The server must allow outbound HTTPS access to the selected LLM provider,
-  OpenAI image generation, WordPress, Meta, and Telegram.
+  selected image provider, WordPress, Meta, and Telegram.
 - Keep the server clock and time zone correct. The scheduler uses
   `SCHEDULER_TIME_ZONE_ID`, while container logs use `TZ`.
 - Back up the `.env` file securely outside Git.

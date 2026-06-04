@@ -20,7 +20,7 @@ public sealed class FixtureImageProvider : IImageProvider
 
     public string Name => ProviderNames.Fixture;
 
-    public async Task<GeneratedImage> GenerateImageAsync(
+    public async Task<GeneratedImage?> GenerateImageAsync(
         GeneratedArticle article,
         CancellationToken cancellationToken)
     {

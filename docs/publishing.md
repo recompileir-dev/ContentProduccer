@@ -3,17 +3,20 @@
 ## Flow
 
 1. The selected LLM provider generates the article and Instagram-style summary.
-2. The selected image provider generates one article image.
-3. The image is kept in memory and is not written to the Worker disk.
-4. The image is uploaded directly to the WordPress Media Library.
-5. The WordPress post is published with that image as featured media and as an image inside the post content.
+2. The selected image provider optionally generates one article image.
+3. A generated image is kept in memory and is not written to the Worker disk.
+4. A generated image is uploaded directly to the WordPress Media Library.
+5. The WordPress post is published with the image as featured media and inside the post content, or as text-only when no image is generated.
 6. The WordPress post link is read from the WordPress REST API response.
-7. Instagram receives the generated image as a single-image post.
+7. Instagram receives the generated image as a single-image post, or is skipped when no image exists.
 8. Instagram caption contains the summary and the original WordPress post URL.
-9. Telegram receives the generated image, summary, and original WordPress post link.
+9. Telegram receives the summary and original WordPress post link, with the image when one exists.
 
 The Worker does not save article or image files locally. WordPress Media Library
 contains the single image used by the WordPress, Instagram, and Telegram posts.
+
+Set `ContentGeneration:ImageProvider` to `None` for a workflow without image
+generation. This is useful with Groq, which does not provide image generation.
 
 ## Manual Test Without Scheduler
 
@@ -138,7 +141,7 @@ Add the bot to the target channel and allow it to post messages. `ChannelChatId`
 can be a public channel username such as `@recompile_ir` or a numeric channel
 ID.
 
-The service uses `sendPhoto` to publish the image and caption.
+The service uses `sendPhoto` when an image exists and `sendMessage` otherwise.
 
 ## Practical Notes
 

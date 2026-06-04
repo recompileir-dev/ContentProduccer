@@ -45,7 +45,7 @@ public sealed class ContentGeneratorService : IContentGeneratorService
         string prompt = await File.ReadAllTextAsync(promptPath, cancellationToken);
         GeneratedArticle article =
             await llmProvider.GenerateArticleAsync(prompt, cancellationToken);
-        GeneratedImage image =
+        GeneratedImage? image =
             await imageProvider.GenerateImageAsync(article, cancellationToken);
 
         return new GeneratedContent(NormalizeArticle(article), image);

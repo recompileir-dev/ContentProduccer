@@ -68,7 +68,7 @@ public sealed class WordPressPublisherService : IWordPressPublisherService
 
     public async Task<WordPressPost> PublishPostAsync(
         GeneratedArticle article,
-        WordPressMedia featuredImage,
+        WordPressMedia? featuredImage,
         CancellationToken cancellationToken)
     {
         string postContent = WordPressContentFormatter.BuildPostContent(
@@ -82,9 +82,13 @@ public sealed class WordPressPublisherService : IWordPressPublisherService
             ["title"] = article.Title,
             ["content"] = postContent,
             ["excerpt"] = article.MetaDescription,
-            ["status"] = _options.PostStatus,
-            ["featured_media"] = featuredImage.Id
+            ["status"] = _options.PostStatus
         };
+
+        if (featuredImage is not null)
+        {
+            post["featured_media"] = featuredImage.Id;
+        }
 
         if (_options.CategoryId.HasValue)
         {

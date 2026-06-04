@@ -80,6 +80,7 @@ IHost host = Host.CreateDefaultBuilder(hostArgs)
         services.AddSingleton<ILlmProvider, FixtureLlmProvider>();
         services.AddSingleton<IImageProvider, OpenAiImageProvider>();
         services.AddSingleton<IImageProvider, FixtureImageProvider>();
+        services.AddSingleton<IImageProvider, NoneImageProvider>();
         services.AddSingleton<IContentGeneratorService, ContentGeneratorService>();
         services.AddSingleton<IWordPressPublisherService, WordPressPublisherService>();
         services.AddSingleton<IInstagramPublisherService, InstagramPublisherService>();

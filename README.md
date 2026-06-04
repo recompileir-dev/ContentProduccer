@@ -12,7 +12,7 @@ a configured time every day.
 - Reads an article prompt from a file on the host
 - Generates a Persian article through a configurable LLM provider
 - Supports OpenAI, Groq, and fixture LLM providers
-- Generates one website article image using the OpenAI Image API
+- Optionally generates one website article image using the OpenAI Image API
 - Uploads the generated image directly to the WordPress Media Library
 - Publishes the article to WordPress with the image as featured media
 - Publishes the generated image and summary to Instagram
@@ -82,7 +82,8 @@ Choose the LLM provider by changing `ContentGeneration:LlmProvider`:
 ```
 
 Valid LLM providers are `OpenAI`, `Groq`, and `Fixture`. The image provider can
-be `OpenAI` or `Fixture`. Choose the active article prompt with:
+be `OpenAI`, `Fixture`, or `None`. Choose `None` when an article should be
+published without calling an image API. Choose the active article prompt with:
 
 ```json
 "PromptFilePath": "prompts/article-news-fa.md"
@@ -127,6 +128,20 @@ You can also select fixture providers in `appsettings.json`:
 ```
 
 Set the providers back to `OpenAI` or `Groq` to use a real LLM again.
+
+Groq does not provide an image generation endpoint. To generate an article with
+Groq without using OpenAI billing, configure:
+
+```json
+"ContentGeneration": {
+  "LlmProvider": "Groq",
+  "ImageProvider": "None"
+}
+```
+
+In this mode WordPress receives a text-only post, Telegram receives a text
+message, and Instagram publishing is skipped because Instagram feed posts
+require media.
 
 Set publishing secrets as environment variables:
 

@@ -38,7 +38,7 @@ public sealed class ContentProductionService : IContentProductionService
 
         GeneratedContent content = await _contentGeneratorService.GenerateAsync(cancellationToken);
         GeneratedArticle article = content.Article;
-        GeneratedImage image = content.Image;
+        GeneratedImage? image = content.Image;
 
         if (!_publishingOptions.PublishToWordPress)
         {
@@ -46,10 +46,12 @@ public sealed class ContentProductionService : IContentProductionService
             return;
         }
 
-        WordPressMedia media = await _wordPressPublisherService.UploadImageAsync(
-            article,
-            image,
-            cancellationToken);
+        WordPressMedia? media = image is null
+            ? null
+            : await _wordPressPublisherService.UploadImageAsync(
+                article,
+                image,
+                cancellationToken);
 
         WordPressPost wordPressPost = await _wordPressPublisherService.PublishPostAsync(
             article,
@@ -62,14 +64,22 @@ public sealed class ContentProductionService : IContentProductionService
         string telegramCaption = SocialCaptionFormatter.BuildTelegramCaption(
             article,
             wordPressPost.Link);
-        string imageUrl = media.SourceUrl;
+        string? imageUrl = media?.SourceUrl;
 
         if (_publishingOptions.PublishToInstagram)
         {
-            await _instagramPublisherService.PublishPostAsync(
-                instagramCaption,
-                imageUrl,
-                cancellationToken);
+            if (imageUrl is null)
+            {
+                _logger.LogWarning(
+                    "Instagram publishing was skipped because no image was generated.");
+            }
+            else
+            {
+                await _instagramPublisherService.PublishPostAsync(
+                    instagramCaption,
+                    imageUrl,
+                    cancellationToken);
+            }
         }
         else
         {

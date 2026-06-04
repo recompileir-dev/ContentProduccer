@@ -7,4 +7,6 @@ public static class ProviderNames
     public const string Groq = "Groq";
 
     public const string Fixture = "Fixture";
+
+    public const string None = "None";
 }

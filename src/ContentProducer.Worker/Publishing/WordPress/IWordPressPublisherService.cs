@@ -11,6 +11,6 @@ public interface IWordPressPublisherService
 
     Task<WordPressPost> PublishPostAsync(
         GeneratedArticle article,
-        WordPressMedia featuredImage,
+        WordPressMedia? featuredImage,
         CancellationToken cancellationToken);
 }

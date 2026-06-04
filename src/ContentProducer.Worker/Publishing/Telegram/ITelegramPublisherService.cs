@@ -4,6 +4,6 @@ public interface ITelegramPublisherService
 {
     Task PublishPostAsync(
         string caption,
-        string imageUrl,
+        string? imageUrl,
         CancellationToken cancellationToken);
 }

@@ -16,10 +16,12 @@ Image providers:
 
 - `OpenAI`: generates one website article image
 - `Fixture`: loads the committed example image without an API request
+- `None`: disables image generation
 
-Groq is currently used for text content only. To use Groq articles with
+Groq is used for text content only. Its API supports image understanding as
+input, but it does not provide image generation. To use Groq articles with
 generated images, select `Groq` as the LLM provider and `OpenAI` as the image
-provider.
+provider. To avoid using an image API, select `None`.
 
 ## Provider Selection
 
@@ -27,7 +29,7 @@ provider.
 {
   "ContentGeneration": {
     "LlmProvider": "Groq",
-    "ImageProvider": "OpenAI",
+    "ImageProvider": "None",
     "PromptFilePath": "prompts/article-news-fa.md",
     "ImagePromptFilePath": "prompts/article-image-fa.md"
   }
@@ -36,6 +38,10 @@ provider.
 
 Provider names are case-insensitive. Unknown provider names fail at runtime and
 the error lists the available providers.
+
+With `ImageProvider: None`, WordPress publishes without featured media,
+Telegram publishes a text message, and Instagram is skipped because its feed
+publishing API requires media.
 
 ## OpenAI Settings
 
@@ -105,6 +111,7 @@ Providers/Abstractions/   LLM and image provider contracts
 Providers/OpenAI/         OpenAI article and image providers
 Providers/Groq/           Groq article provider
 Providers/Fixture/        fake providers backed by fixture files
+Providers/None/           image generation opt-out provider
 Publishing/               WordPress, Instagram, and Telegram integrations
 Scheduling/               daily scheduler agent
 ```
