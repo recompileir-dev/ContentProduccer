@@ -3,10 +3,12 @@ using ContentProducer.Worker;
 bool runOnce = args.Any(arg => string.Equals(arg, "run-once", StringComparison.OrdinalIgnoreCase));
 bool skipInstagram = args.Any(arg => string.Equals(arg, "--skip-instagram", StringComparison.OrdinalIgnoreCase));
 bool skipTelegram = args.Any(arg => string.Equals(arg, "--skip-telegram", StringComparison.OrdinalIgnoreCase));
+bool useFixture = args.Any(arg => string.Equals(arg, "--use-fixture", StringComparison.OrdinalIgnoreCase));
 string[] hostArgs = args
     .Where(arg => !string.Equals(arg, "run-once", StringComparison.OrdinalIgnoreCase))
     .Where(arg => !string.Equals(arg, "--skip-instagram", StringComparison.OrdinalIgnoreCase))
     .Where(arg => !string.Equals(arg, "--skip-telegram", StringComparison.OrdinalIgnoreCase))
+    .Where(arg => !string.Equals(arg, "--use-fixture", StringComparison.OrdinalIgnoreCase))
     .ToArray();
 
 IHost host = Host.CreateDefaultBuilder(hostArgs)
@@ -27,6 +29,14 @@ IHost host = Host.CreateDefaultBuilder(hostArgs)
                 [$"{PublishingOptions.SectionName}:PublishToTelegram"] = "false"
             });
         }
+
+        if (useFixture)
+        {
+            configuration.AddInMemoryCollection(new Dictionary<string, string?>
+            {
+                [$"{ContentSourceOptions.SectionName}:UseFixture"] = "true"
+            });
+        }
     })
     .ConfigureServices((context, services) =>
     {
@@ -34,6 +44,8 @@ IHost host = Host.CreateDefaultBuilder(hostArgs)
             context.Configuration.GetSection(SchedulerOptions.SectionName));
         services.Configure<OpenAiOptions>(
             context.Configuration.GetSection(OpenAiOptions.SectionName));
+        services.Configure<ContentSourceOptions>(
+            context.Configuration.GetSection(ContentSourceOptions.SectionName));
         services.Configure<WordPressOptions>(
             context.Configuration.GetSection(WordPressOptions.SectionName));
         services.Configure<InstagramOptions>(
@@ -57,6 +69,7 @@ IHost host = Host.CreateDefaultBuilder(hostArgs)
         services.AddSingleton<OpenAiApiClient>();
         services.AddSingleton<IOpenAiArticleService, OpenAiArticleService>();
         services.AddSingleton<IOpenAiImageService, OpenAiImageService>();
+        services.AddSingleton<IContentGeneratorService, ContentGeneratorService>();
         services.AddSingleton<IWordPressPublisherService, WordPressPublisherService>();
         services.AddSingleton<IInstagramPublisherService, InstagramPublisherService>();
         services.AddSingleton<ITelegramPublisherService, TelegramPublisherService>();

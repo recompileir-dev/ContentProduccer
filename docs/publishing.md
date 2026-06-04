@@ -31,6 +31,28 @@ dotnet run --project src/ContentProducer.Worker -- run-once --skip-instagram --s
 
 In this mode, `INSTAGRAM_ACCESS_TOKEN` and `TELEGRAM_BOT_TOKEN` are not needed.
 
+Run the included example article and images without calling OpenAI:
+
+```bash
+dotnet run --project src/ContentProducer.Worker -- run-once --use-fixture --skip-instagram
+```
+
+This command tests WordPress and Telegram publishing. It needs
+`WORDPRESS_APPLICATION_PASSWORD` and `TELEGRAM_BOT_TOKEN`, but it does not need
+`OPENAI_API_KEY`.
+
+Fixture mode can also be enabled in `appsettings.json`:
+
+```json
+{
+  "ContentSource": {
+    "UseFixture": true,
+    "FixtureArticleFilePath": "fixtures/article-example.json",
+    "FixtureImagesDirectory": "fixtures/images"
+  }
+}
+```
+
 PowerShell example:
 
 ```powershell

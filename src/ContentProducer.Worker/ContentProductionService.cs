@@ -2,35 +2,26 @@ namespace ContentProducer.Worker;
 
 public sealed class ContentProductionService : IContentProductionService
 {
-    private readonly IOpenAiArticleService _articleService;
-    private readonly IOpenAiImageService _imageService;
+    private readonly IContentGeneratorService _contentGeneratorService;
     private readonly IInstagramPublisherService _instagramPublisherService;
-    private readonly IHostEnvironment _hostEnvironment;
     private readonly ILogger<ContentProductionService> _logger;
-    private readonly OpenAiOptions _options;
     private readonly PublishingOptions _publishingOptions;
     private readonly ITelegramPublisherService _telegramPublisherService;
     private readonly IWordPressPublisherService _wordPressPublisherService;
 
     public ContentProductionService(
-        IOpenAiArticleService articleService,
-        IOpenAiImageService imageService,
+        IContentGeneratorService contentGeneratorService,
         IInstagramPublisherService instagramPublisherService,
         ITelegramPublisherService telegramPublisherService,
         IWordPressPublisherService wordPressPublisherService,
-        IHostEnvironment hostEnvironment,
-        Microsoft.Extensions.Options.IOptions<OpenAiOptions> options,
         Microsoft.Extensions.Options.IOptions<PublishingOptions> publishingOptions,
         ILogger<ContentProductionService> logger)
     {
-        _articleService = articleService;
-        _imageService = imageService;
+        _contentGeneratorService = contentGeneratorService;
         _instagramPublisherService = instagramPublisherService;
         _telegramPublisherService = telegramPublisherService;
         _wordPressPublisherService = wordPressPublisherService;
-        _hostEnvironment = hostEnvironment;
         _logger = logger;
-        _options = options.Value;
         _publishingOptions = publishingOptions.Value;
     }
 
@@ -40,12 +31,9 @@ public sealed class ContentProductionService : IContentProductionService
             "Content production service started at {StartedAt}.",
             DateTimeOffset.Now);
 
-        string promptPath = ResolvePath(_options.PromptFilePath);
-        string prompt = await File.ReadAllTextAsync(promptPath, cancellationToken);
-        GeneratedArticle article =
-            await _articleService.GenerateArticleAsync(prompt, cancellationToken);
-        IReadOnlyList<GeneratedImage> images =
-            await _imageService.GenerateCarouselImagesAsync(article, cancellationToken);
+        GeneratedContent content = await _contentGeneratorService.GenerateAsync(cancellationToken);
+        GeneratedArticle article = content.Article;
+        IReadOnlyList<GeneratedImage> images = content.Images;
 
         if (!_publishingOptions.PublishToWordPress)
         {
@@ -105,10 +93,4 @@ public sealed class ContentProductionService : IContentProductionService
             DateTimeOffset.Now);
     }
 
-    private string ResolvePath(string path)
-    {
-        return Path.IsPathRooted(path)
-            ? path
-            : Path.GetFullPath(path, _hostEnvironment.ContentRootPath);
-    }
 }

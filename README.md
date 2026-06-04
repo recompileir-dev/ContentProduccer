@@ -78,6 +78,35 @@ For the full news prompt, use:
 The prompt selection is stored directly in `appsettings.json`; no environment
 variable is required for it.
 
+## Test With Example Content
+
+The project includes an example article and example images under
+`src/ContentProducer.Worker/fixtures`. To publish this example without calling
+OpenAI, run:
+
+```bash
+dotnet run --project src/ContentProducer.Worker -- run-once --use-fixture --skip-instagram
+```
+
+This tests WordPress and Telegram publishing. It requires only:
+
+```bash
+export WORDPRESS_APPLICATION_PASSWORD="your-wordpress-application-password"
+export TELEGRAM_BOT_TOKEN="your-telegram-bot-token"
+```
+
+You can also enable fixture loading in `appsettings.json`:
+
+```json
+"ContentSource": {
+  "UseFixture": true,
+  "FixtureArticleFilePath": "fixtures/article-example.json",
+  "FixtureImagesDirectory": "fixtures/images"
+}
+```
+
+Set `UseFixture` back to `false` to use OpenAI again.
+
 Set WordPress, Instagram, and Telegram secrets as environment variables:
 
 ```bash
