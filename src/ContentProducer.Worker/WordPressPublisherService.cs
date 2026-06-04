@@ -44,12 +44,13 @@ public sealed class WordPressPublisherService : IWordPressPublisherService
         {
             string fileName = $"carousel-{image.SlideNumber:00}.png";
             using HttpRequestMessage request = new(HttpMethod.Post, "wp-json/wp/v2/media");
-            request.Headers.TryAddWithoutValidation(
-                "Content-Disposition",
-                $"attachment; filename=\"{fileName}\"");
 
             ByteArrayContent content = new(image.Content);
             content.Headers.ContentType = new MediaTypeHeaderValue("image/png");
+            content.Headers.ContentDisposition = new ContentDispositionHeaderValue("attachment")
+            {
+                FileName = fileName
+            };
             request.Content = content;
 
             using HttpResponseMessage response =
