@@ -130,7 +130,7 @@ GROQ_ARTICLE_PROMPT_FILE_PATH=prompts/article-news-groq-fa.md
 WORDPRESS_SITE_URL=https://example.com/
 WORDPRESS_USERNAME=wordpress-user
 WORDPRESS_APPLICATION_PASSWORD=replace-with-wordpress-application-password
-WORDPRESS_CATEGORY_ID=1
+WORDPRESS_CATEGORY_ID=50
 WORDPRESS_REQUIRE_CATEGORY_ID=true
 
 PUBLISH_TO_WORDPRESS=false
@@ -142,6 +142,8 @@ PUBLISH_TO_TELEGRAM=false
 
 - مدل `openai/gpt-oss-120b` در این پروژه از API و کلید Groq استفاده می‌کند.
 - Groq تولید تصویر ندارد؛ برای اجرای بدون OpenAI مقدار `IMAGE_PROVIDER=None` بماند.
+- مقدار `WORDPRESS_CATEGORY_ID` باید شناسه واقعی دسته‌بندی مقصد در وردپرس باشد؛
+  در سایت فعلی نمونه، مقدار `50` برای دسته «مجله» استفاده شده است.
 - اگر OpenAI باید تصویر بسازد، `IMAGE_PROVIDER=OpenAI` و `OPENAI_API_KEY` را تنظیم کن.
 - مقدار `WORDPRESS_CATEGORY_ID` باید شناسه عددی دسته‌بندی واقعی وردپرس باشد.
   در پنل وردپرس به **نوشته‌ها > دسته‌ها** برو، دسته را باز کن و مقدار عددی

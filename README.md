@@ -15,9 +15,9 @@ a configured time every day.
 - Optionally generates one website article image using the OpenAI Image API
 - Uploads the generated image directly to the WordPress Media Library
 - Publishes the article to WordPress with the image as featured media
-- Publishes the generated image and summary to Instagram
-- Publishes the generated image and summary to a Telegram channel
-- Uses the generated Instagram caption without saving article or image files locally
+- Publishes a single-image Instagram post when an image is available
+- Publishes the summary and WordPress link to a Telegram channel, with image when available
+- Uses the generated social summary without saving article or image files locally
 
 This version does not use a database, distributed lock, retry policy, or
 external scheduler package.
@@ -180,9 +180,11 @@ Then run:
 dotnet run --project src/ContentProducer.Worker
 ```
 
-Each run sends generated content directly to WordPress, Instagram, and
-Telegram. The WordPress Media Library provides the public image URL required by
-the social publishing APIs.
+Each run sends generated content directly to WordPress, then uses the published
+WordPress link for Telegram and Instagram captions. The WordPress Media Library
+provides the public image URL required by Instagram and by Telegram photo posts.
+When no image is generated, Telegram still publishes a text message and
+Instagram is skipped.
 
 ## Local Test Without Scheduler
 
