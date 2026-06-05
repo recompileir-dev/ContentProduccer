@@ -63,7 +63,7 @@ Replace every placeholder with the real value. Important settings:
 
 - `OPENAI_API_KEY`
 - `GROQ_API_KEY` when `LLM_PROVIDER=Groq`
-- `IMAGE_PROVIDER`, usually `Pollinations`, `OpenAI`, `Fixture`, or `None`
+- `IMAGE_PROVIDER`, usually `GoogleImages`, `Pollinations`, `OpenAI`, `Fixture`, or `None`
 - `WORDPRESS_SITE_URL`
 - `WORDPRESS_USERNAME`
 - `WORDPRESS_APPLICATION_PASSWORD`
@@ -113,6 +113,19 @@ GROQ_ARTICLE_PROMPT_FILE_PATH=prompts/article-news-groq-fa.md
 Groq does not provide image generation. Use `IMAGE_PROVIDER=OpenAI` when OpenAI
 should generate an image for Groq articles, or use `IMAGE_PROVIDER=Pollinations`
 for the free public image endpoint.
+
+To search Google Images instead of creating a new image:
+
+```dotenv
+IMAGE_PROVIDER=GoogleImages
+GOOGLE_IMAGE_SEARCH_API_KEY=replace-with-google-custom-search-api-key
+GOOGLE_IMAGE_SEARCH_ENGINE_ID=replace-with-programmable-search-engine-id
+GOOGLE_IMAGE_SEARCH_IMAGE_SIZE=large
+GOOGLE_IMAGE_SEARCH_SAFE=active
+```
+
+Google Images uses the official Programmable Search JSON API. Configure the
+search engine and licensing filters carefully before using images in production.
 
 Pollinations image generation can be enabled without an API key:
 
