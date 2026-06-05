@@ -46,12 +46,10 @@ public sealed class ContentProductionService : IContentProductionService
             return;
         }
 
-        WordPressMedia? media = image is null
-            ? null
-            : await _wordPressPublisherService.UploadImageAsync(
-                article,
-                image,
-                cancellationToken);
+        WordPressMedia? media = await TryUploadWordPressImageAsync(
+            article,
+            image,
+            cancellationToken);
 
         WordPressPost wordPressPost = await _wordPressPublisherService.PublishPostAsync(
             article,
@@ -101,6 +99,37 @@ public sealed class ContentProductionService : IContentProductionService
         _logger.LogInformation(
             "Content production service completed at {CompletedAt}.",
             DateTimeOffset.Now);
+    }
+
+    private async Task<WordPressMedia?> TryUploadWordPressImageAsync(
+        GeneratedArticle article,
+        GeneratedImage? image,
+        CancellationToken cancellationToken)
+    {
+        if (image is null)
+        {
+            return null;
+        }
+
+        try
+        {
+            return await _wordPressPublisherService.UploadImageAsync(
+                article,
+                image,
+                cancellationToken);
+        }
+        catch (OperationCanceledException)
+        {
+            throw;
+        }
+        catch (Exception exception)
+        {
+            _logger.LogWarning(
+                exception,
+                "WordPress image upload failed. Publishing the article without an image.");
+
+            return null;
+        }
     }
 
 }

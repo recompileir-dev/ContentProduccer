@@ -49,10 +49,36 @@ public sealed class ContentGeneratorService : IContentGeneratorService
         string prompt = await File.ReadAllTextAsync(promptPath, cancellationToken);
         GeneratedArticle article =
             await llmProvider.GenerateArticleAsync(prompt, cancellationToken);
-        GeneratedImage? image =
-            await imageProvider.GenerateImageAsync(article, cancellationToken);
+        GeneratedImage? image = await TryGenerateImageAsync(
+            imageProvider,
+            article,
+            cancellationToken);
 
         return new GeneratedContent(NormalizeArticle(article), image);
+    }
+
+    private async Task<GeneratedImage?> TryGenerateImageAsync(
+        IImageProvider imageProvider,
+        GeneratedArticle article,
+        CancellationToken cancellationToken)
+    {
+        try
+        {
+            return await imageProvider.GenerateImageAsync(article, cancellationToken);
+        }
+        catch (OperationCanceledException)
+        {
+            throw;
+        }
+        catch (Exception exception)
+        {
+            _logger.LogWarning(
+                exception,
+                "Image provider {ImageProvider} failed. Continuing without an image.",
+                imageProvider.Name);
+
+            return null;
+        }
     }
 
     private static TProvider ResolveProvider<TProvider>(

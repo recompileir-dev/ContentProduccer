@@ -10,6 +10,7 @@
 6. `GeneratedArticleParser` خروجی را parse و اعتبارسنجی می‌کند.
 7. Provider تصویر از `ContentGeneration:ImageProvider` انتخاب می‌شود.
 8. اگر Provider تصویر `SourcePageImages`، `OpenAI`، `Pollinations` یا `Fixture` باشد یک تصویر شاخص پیدا/تولید/لود می‌شود.
+   اگر تولید، پیدا کردن یا آپلود تصویر شکست بخورد، workflow متوقف نمی‌شود و محتوا بدون تصویر ادامه پیدا می‌کند.
 9. اگر Provider تصویر `None` باشد workflow بدون تصویر ادامه پیدا می‌کند.
 10. تصویر، در صورت وجود، مستقیماً در WordPress Media Library آپلود می‌شود.
 11. مقاله در وردپرس با وضعیت تنظیم‌شده ساخته می‌شود؛ پیش‌فرض فعلی `draft` است.
