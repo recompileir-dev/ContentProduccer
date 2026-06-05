@@ -238,4 +238,7 @@ The `.env` file contains deployment secrets and is ignored by Git. See the
 [Docker deployment guide](./docs/docker-deployment.md) for complete server
 setup, manual testing, logs, and update instructions. A Persian step-by-step
 checklist is available in the
-[server deployment guide](./docs/server-deployment-step-by-step-fa.md).
+[server deployment guide](./docs/server-deployment-step-by-step-fa.md). For
+WordPress Application Passwords, Telegram bot tokens, OpenAI keys, and Groq
+keys, see the
+[service credentials guide](./docs/service-credentials-fa.md).

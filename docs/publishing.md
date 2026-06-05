@@ -92,6 +92,8 @@ export WORDPRESS_APPLICATION_PASSWORD="your-wordpress-application-password"
 ```
 
 The WordPress site must use HTTPS and expose the REST API.
+For detailed credential setup and common security plugin issues, see
+[تهیه کلیدها و اطلاعات اتصال سرویس‌ها](./service-credentials-fa.md).
 
 `PostStatus` controls only the WordPress post status. Keep the default `draft`
 for manual review in WordPress. Telegram and Instagram are controlled separately

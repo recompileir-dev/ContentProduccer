@@ -24,6 +24,7 @@ Content Producer یک Worker سرویس با .NET است که تولید و ان
 - [جریان تولید و انتشار محتوا](./content-workflow.md)
 - [Providerهای تولید محتوا: OpenAI، Groq، Fixture و None](./content-providers.md)
 - [انتشار خودکار در WordPress، Instagram و Telegram](./publishing.md)
+- [تهیه کلیدها و اطلاعات اتصال سرویس‌ها](./service-credentials-fa.md)
 - [تنظیمات انتشار و سئو وردپرس](./wordpress-seo.md)
 - [استقرار پروژه با Docker روی سرور لینوکس](./docker-deployment.md)
 - [راهنمای قدم‌به‌قدم انتقال پروژه به سرور](./server-deployment-step-by-step-fa.md)

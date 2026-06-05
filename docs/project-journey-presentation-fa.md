@@ -126,6 +126,7 @@ Content Producer از یک ایده ساده شروع شد: تولید خودک�
 56. بررسی گزینه‌های رایگان تصویر، اضافه‌شدن Pollinations و سپس جداشدن کامل Image Providerها.
 57. کنار گذاشتن Google Image Search API و اضافه‌شدن `SourcePageImages` برای پیدا کردن تصویر از صفحات منبع مقاله.
 58. مقاوم‌سازی workflow تصویر: شکست تولید، پیدا کردن یا آپلود تصویر نباید انتشار مقاله را متوقف کند.
+59. مستندسازی روش تهیه WordPress Application Password، Telegram Bot Token، OpenAI API Key و Groq API Key.
 
 ## خط زمانی فنی پروژه
 
@@ -557,6 +558,7 @@ prompt می‌تواند تنوع را بهتر کند، اما اگر دیتا�
 - WordPress SEO metadata support
 - Dockerfile و Compose
 - راهنمای فارسی deployment
+- راهنمای تهیه credentialها و کلیدهای سرویس‌ها
 
 ## وضعیت فعلی پروژه
 
