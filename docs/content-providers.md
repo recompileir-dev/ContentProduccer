@@ -242,8 +242,10 @@ dotnet run --project src/ContentProducer.Worker -- run-once --use-fixture
 
 ## Prompt Files
 
-- `prompts/article-news-fa.md`: news prompt that examines two or three fresh AI-life-impact news items
-- `prompts/article-news-groq-fa.md`: Groq-specific news prompt with explicit depth and length requirements
+- `prompts/article-news-fa.md`: OpenAI news prompt that focuses on one important/trending AI news item, or two tightly related items
+- `prompts/article-news-groq-fa.md`: Groq-specific news prompt with the same one-news-or-two-related-news rule plus explicit depth and length requirements
+- `prompts/article-news-old-fa.md`: previous OpenAI article prompt kept for comparison or rollback
+- `prompts/article-news-groq-old-fa.md`: previous Groq article prompt kept for comparison or rollback
 - `prompts/article-image-fa.md`: editable website image prompt used by OpenAI
 - `prompts/article-image-pollinations-en.md`: shorter editable image prompt used by Pollinations
 

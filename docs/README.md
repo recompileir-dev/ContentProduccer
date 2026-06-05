@@ -37,6 +37,8 @@ Content Producer یک Worker سرویس با .NET است که تولید و ان
 - `.env.example`: نمونه متغیرهای محیطی برای Docker و سرور
 - `src/ContentProducer.Worker/prompts/article-news-fa.md`: پرامپت مقاله برای OpenAI
 - `src/ContentProducer.Worker/prompts/article-news-groq-fa.md`: پرامپت مقاله مخصوص Groq
+- `src/ContentProducer.Worker/prompts/article-news-old-fa.md`: نسخه قبلی پرامپت OpenAI برای مقایسه یا بازگشت
+- `src/ContentProducer.Worker/prompts/article-news-groq-old-fa.md`: نسخه قبلی پرامپت Groq برای مقایسه یا بازگشت
 - `src/ContentProducer.Worker/prompts/article-image-fa.md`: پرامپت تصویر شاخص سایت
 - `src/ContentProducer.Worker/fixtures`: مقاله و تصویر نمونه برای تست بدون API
 - `local-scripts`: اسکریپت‌های تست لوکال که به‌خاطر داشتن سکرت‌ها وارد Git نمی‌شوند
