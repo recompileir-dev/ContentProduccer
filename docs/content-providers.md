@@ -15,16 +15,14 @@ LLM providers:
 Image providers:
 
 - `OpenAI`: generates one website article image
-- `GoogleImages`: searches Google Images through the official Programmable Search JSON API and downloads an existing image
 - `Pollinations`: generates one website article image from a free public endpoint without an API key
 - `Fixture`: loads the committed example image without an API request
 - `None`: disables image generation
 
 Groq is used for text content only. Its API supports image understanding as
 input, but it does not provide image generation. To use Groq articles with
-found or generated images, select `Groq` as the LLM provider and `GoogleImages`,
-`Pollinations`, or `OpenAI` as the image provider. To avoid using an image API,
-select `None`.
+generated images, select `Groq` as the LLM provider and `Pollinations` or
+`OpenAI` as the image provider. To avoid using an image API, select `None`.
 
 ## Provider Selection
 
@@ -32,7 +30,7 @@ select `None`.
 {
   "ContentGeneration": {
     "LlmProvider": "Groq",
-    "ImageProvider": "GoogleImages",
+    "ImageProvider": "Pollinations",
     "PromptFilePath": "prompts/article-news-fa.md",
     "ProviderPromptFilePaths": {
       "Groq": "prompts/article-news-groq-fa.md"
@@ -53,36 +51,6 @@ without changing provider code.
 With `ImageProvider: None`, WordPress publishes without featured media,
 Telegram publishes a text message, and Instagram is skipped because its feed
 publishing API requires media.
-
-## Google Images Settings
-
-```json
-{
-  "GoogleImageSearch": {
-    "ApiKeyEnvironmentVariable": "GOOGLE_IMAGE_SEARCH_API_KEY",
-    "SearchEngineIdEnvironmentVariable": "GOOGLE_IMAGE_SEARCH_ENGINE_ID",
-    "BaseUrl": "https://www.googleapis.com/customsearch/v1",
-    "QueryTemplate": "{focusKeyphrase} {title} technology article",
-    "SearchCount": 10,
-    "MaxDownloadAttempts": 5,
-    "MaxQueryCharacters": 180,
-    "ImageSize": "large",
-    "Safe": "active",
-    "Rights": "",
-    "MaxImageBytes": 8000000
-  }
-}
-```
-
-This provider does not create a new image. It searches Google Images through
-the official Custom Search JSON API with `searchType=image`, downloads the first
-usable image result, uploads it to WordPress, and stores the source page in the
-image caption. It requires a Google API key and a Programmable Search Engine ID.
-
-For safer reuse, configure the Programmable Search Engine and `Rights` filter
-according to the licensing rules you want to follow. The provider records
-attribution, but it does not automatically verify legal permission for every
-image.
 
 ## Pollinations Settings
 
@@ -208,7 +176,6 @@ Domain/                   generated content models and parsing
 Providers/Abstractions/   LLM and image provider contracts
 Providers/OpenAI/         OpenAI article and image providers
 Providers/Groq/           Groq article provider
-Providers/GoogleImages/   Google image search provider
 Providers/Pollinations/   free public image provider
 Providers/Fixture/        fake providers backed by fixture files
 Providers/None/           image generation opt-out provider

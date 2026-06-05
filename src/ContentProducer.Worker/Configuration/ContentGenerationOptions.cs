@@ -6,7 +6,7 @@ public sealed class ContentGenerationOptions
 
     public string LlmProvider { get; init; } = ProviderNames.OpenAi;
 
-    public string ImageProvider { get; init; } = ProviderNames.GoogleImages;
+    public string ImageProvider { get; init; } = ProviderNames.Pollinations;
 
     public string PromptFilePath { get; init; } = "prompts/article-news-fa.md";
 

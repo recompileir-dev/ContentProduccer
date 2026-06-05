@@ -60,11 +60,11 @@ public sealed class WordPressPublisherService : IWordPressPublisherService
         string sourceUrl = document.RootElement.GetProperty("source_url").GetString()
             ?? throw new InvalidOperationException("WordPress media response has no source_url.");
 
-        await UpdateMediaMetadataAsync(id, article, image, cancellationToken);
+        await UpdateMediaMetadataAsync(id, article, cancellationToken);
 
         _logger.LogInformation("Uploaded WordPress article image {MediaId}.", id);
 
-        return new WordPressMedia(id, sourceUrl, image.Attribution);
+        return new WordPressMedia(id, sourceUrl);
     }
 
     public async Task<WordPressPost> PublishPostAsync(
@@ -193,19 +193,15 @@ public sealed class WordPressPublisherService : IWordPressPublisherService
     private async Task UpdateMediaMetadataAsync(
         int mediaId,
         GeneratedArticle article,
-        GeneratedImage image,
         CancellationToken cancellationToken)
     {
         string altText = WordPressContentFormatter.GetFocusKeyphrase(article);
-        string caption = string.IsNullOrWhiteSpace(image.Attribution)
-            ? article.Title
-            : image.Attribution;
         string json = JsonSerializer.Serialize(
             new
             {
                 alt_text = altText,
                 title = article.Title,
-                caption
+                caption = article.Title
             },
             JsonOptions);
 

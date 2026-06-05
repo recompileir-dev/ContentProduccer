@@ -51,8 +51,6 @@ IHost host = Host.CreateDefaultBuilder(hostArgs)
             context.Configuration.GetSection(GroqOptions.SectionName));
         services.Configure<PollinationsOptions>(
             context.Configuration.GetSection(PollinationsOptions.SectionName));
-        services.Configure<GoogleImageSearchOptions>(
-            context.Configuration.GetSection(GoogleImageSearchOptions.SectionName));
         services.Configure<FixtureOptions>(
             context.Configuration.GetSection(FixtureOptions.SectionName));
         services.Configure<ContentGenerationOptions>(
@@ -84,7 +82,6 @@ IHost host = Host.CreateDefaultBuilder(hostArgs)
         services.AddSingleton<ILlmProvider, FixtureLlmProvider>();
         services.AddSingleton<IImageProvider, OpenAiImageProvider>();
         services.AddSingleton<IImageProvider, PollinationsImageProvider>();
-        services.AddSingleton<IImageProvider, GoogleImagesImageProvider>();
         services.AddSingleton<IImageProvider, FixtureImageProvider>();
         services.AddSingleton<IImageProvider, NoneImageProvider>();
         services.AddSingleton<IContentGeneratorService, ContentGeneratorService>();

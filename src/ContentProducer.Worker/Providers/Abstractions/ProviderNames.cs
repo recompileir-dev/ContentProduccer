@@ -10,7 +10,5 @@ public static class ProviderNames
 
     public const string Pollinations = "Pollinations";
 
-    public const string GoogleImages = "GoogleImages";
-
     public const string None = "None";
 }
