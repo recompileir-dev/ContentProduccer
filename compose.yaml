@@ -22,7 +22,7 @@ services:
       Scheduler__StartAt: ${SCHEDULER_START_AT:-08:00:00}
       Scheduler__TimeZoneId: ${SCHEDULER_TIME_ZONE_ID:-Asia/Tehran}
       ContentGeneration__LlmProvider: ${LLM_PROVIDER:-OpenAI}
-      ContentGeneration__ImageProvider: ${IMAGE_PROVIDER:-OpenAI}
+      ContentGeneration__ImageProvider: ${IMAGE_PROVIDER:-Pollinations}
       ContentGeneration__PromptFilePath: ${ARTICLE_PROMPT_FILE_PATH:-prompts/article-news-fa.md}
       ContentGeneration__ProviderPromptFilePaths__Groq: ${GROQ_ARTICLE_PROMPT_FILE_PATH:-prompts/article-news-groq-fa.md}
       ContentGeneration__ImagePromptFilePath: ${IMAGE_PROMPT_FILE_PATH:-prompts/article-image-fa.md}
@@ -41,6 +41,18 @@ services:
       Groq__ResearchPromptMaxCharacters: ${GROQ_RESEARCH_PROMPT_MAX_CHARACTERS:-1200}
       Groq__MaxResearchCharacters: ${GROQ_MAX_RESEARCH_CHARACTERS:-12000}
       Groq__ContinueWithoutResearchOnFailure: ${GROQ_CONTINUE_WITHOUT_RESEARCH_ON_FAILURE:-true}
+      Pollinations__BaseUrl: ${POLLINATIONS_BASE_URL:-https://image.pollinations.ai/prompt/}
+      Pollinations__PromptFilePath: ${POLLINATIONS_PROMPT_FILE_PATH:-prompts/article-image-pollinations-en.md}
+      Pollinations__Model: ${POLLINATIONS_MODEL:-flux}
+      Pollinations__Width: ${POLLINATIONS_WIDTH:-1536}
+      Pollinations__Height: ${POLLINATIONS_HEIGHT:-1024}
+      Pollinations__NoLogo: ${POLLINATIONS_NO_LOGO:-true}
+      Pollinations__Private: ${POLLINATIONS_PRIVATE:-true}
+      Pollinations__Safe: ${POLLINATIONS_SAFE:-true}
+      Pollinations__Enhance: ${POLLINATIONS_ENHANCE:-false}
+      Pollinations__MaxPromptCharacters: ${POLLINATIONS_MAX_PROMPT_CHARACTERS:-700}
+      Pollinations__MaxAttempts: ${POLLINATIONS_MAX_ATTEMPTS:-3}
+      Pollinations__RetryDelaySeconds: ${POLLINATIONS_RETRY_DELAY_SECONDS:-30}
       WordPress__SiteUrl: ${WORDPRESS_SITE_URL}
       WordPress__PostStatus: ${WORDPRESS_POST_STATUS:-draft}
       WordPress__CategoryId: ${WORDPRESS_CATEGORY_ID}

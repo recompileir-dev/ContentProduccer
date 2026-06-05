@@ -40,14 +40,13 @@ public sealed class WordPressPublisherService : IWordPressPublisherService
         GeneratedImage image,
         CancellationToken cancellationToken)
     {
-        const string fileName = "article-image.png";
         using HttpRequestMessage request = new(HttpMethod.Post, "wp-json/wp/v2/media");
 
         ByteArrayContent content = new(image.Content);
-        content.Headers.ContentType = new MediaTypeHeaderValue("image/png");
+        content.Headers.ContentType = new MediaTypeHeaderValue(image.ContentType);
         content.Headers.ContentDisposition = new ContentDispositionHeaderValue("attachment")
         {
-            FileName = fileName
+            FileName = image.FileName
         };
         request.Content = content;
 

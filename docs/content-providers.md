@@ -15,13 +15,14 @@ LLM providers:
 Image providers:
 
 - `OpenAI`: generates one website article image
+- `Pollinations`: generates one website article image from a free public endpoint without an API key
 - `Fixture`: loads the committed example image without an API request
 - `None`: disables image generation
 
 Groq is used for text content only. Its API supports image understanding as
 input, but it does not provide image generation. To use Groq articles with
-generated images, select `Groq` as the LLM provider and `OpenAI` as the image
-provider. To avoid using an image API, select `None`.
+generated images, select `Groq` as the LLM provider and `Pollinations` or
+`OpenAI` as the image provider. To avoid using an image API, select `None`.
 
 ## Provider Selection
 
@@ -29,7 +30,7 @@ provider. To avoid using an image API, select `None`.
 {
   "ContentGeneration": {
     "LlmProvider": "Groq",
-    "ImageProvider": "None",
+    "ImageProvider": "Pollinations",
     "PromptFilePath": "prompts/article-news-fa.md",
     "ProviderPromptFilePaths": {
       "Groq": "prompts/article-news-groq-fa.md"
@@ -50,6 +51,36 @@ without changing provider code.
 With `ImageProvider: None`, WordPress publishes without featured media,
 Telegram publishes a text message, and Instagram is skipped because its feed
 publishing API requires media.
+
+## Pollinations Settings
+
+```json
+{
+  "Pollinations": {
+    "BaseUrl": "https://image.pollinations.ai/prompt/",
+    "Model": "flux",
+    "Width": 1536,
+    "Height": 1024,
+    "NoLogo": true,
+    "Private": true,
+    "Safe": true,
+    "Enhance": false,
+    "MaxPromptCharacters": 700,
+    "MaxAttempts": 3,
+    "RetryDelaySeconds": 30
+  }
+}
+```
+
+Pollinations is useful when an article image is needed without OpenAI billing.
+The default endpoint does not require an API key. Because it is a free public
+service, availability, queue time, and output quality are not guaranteed like a
+paid production API.
+
+The provider uses a short editable prompt file, trims the prompt for URL
+length, requests a landscape image, and sends the returned image content type to
+WordPress. If the free queue is temporarily full, it retries a small number of
+times before failing.
 
 ## OpenAI Settings
 
@@ -145,6 +176,7 @@ Domain/                   generated content models and parsing
 Providers/Abstractions/   LLM and image provider contracts
 Providers/OpenAI/         OpenAI article and image providers
 Providers/Groq/           Groq article provider
+Providers/Pollinations/   free public image provider
 Providers/Fixture/        fake providers backed by fixture files
 Providers/None/           image generation opt-out provider
 Publishing/               WordPress, Instagram, and Telegram integrations
@@ -183,7 +215,8 @@ dotnet run --project src/ContentProducer.Worker -- run-once --use-fixture
 
 - `prompts/article-news-fa.md`: news prompt that examines two or three fresh AI-life-impact news items
 - `prompts/article-news-groq-fa.md`: Groq-specific news prompt with explicit depth and length requirements
-- `prompts/article-image-fa.md`: editable website image prompt
+- `prompts/article-image-fa.md`: editable website image prompt used by OpenAI
+- `prompts/article-image-pollinations-en.md`: shorter editable image prompt used by Pollinations
 
 Article prompt paths can be shared or overridden per provider. Image prompts
 can also be edited without changing provider code.

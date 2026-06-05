@@ -118,7 +118,7 @@ SCHEDULER_START_AT=08:00:00
 SCHEDULER_TIME_ZONE_ID=Asia/Tehran
 
 LLM_PROVIDER=Groq
-IMAGE_PROVIDER=None
+IMAGE_PROVIDER=Pollinations
 GROQ_API_KEY=replace-with-real-groq-api-key
 GROQ_WRITER_MODEL=openai/gpt-oss-120b
 GROQ_MAX_COMPLETION_TOKENS=5000
@@ -126,6 +126,12 @@ GROQ_ENABLE_WRITER_FALLBACK=true
 GROQ_FALLBACK_WRITER_MODEL=llama-3.3-70b-versatile
 GROQ_FALLBACK_MAX_COMPLETION_TOKENS=4500
 GROQ_ARTICLE_PROMPT_FILE_PATH=prompts/article-news-groq-fa.md
+POLLINATIONS_MODEL=flux
+POLLINATIONS_WIDTH=1536
+POLLINATIONS_HEIGHT=1024
+POLLINATIONS_SAFE=true
+POLLINATIONS_MAX_ATTEMPTS=3
+POLLINATIONS_RETRY_DELAY_SECONDS=30
 
 WORDPRESS_SITE_URL=https://example.com/
 WORDPRESS_USERNAME=wordpress-user
@@ -142,7 +148,8 @@ PUBLISH_TO_TELEGRAM=false
 نکته‌ها:
 
 - مدل `openai/gpt-oss-120b` در این پروژه از API و کلید Groq استفاده می‌کند.
-- Groq تولید تصویر ندارد؛ برای اجرای بدون OpenAI مقدار `IMAGE_PROVIDER=None` بماند.
+- Groq تولید تصویر ندارد؛ برای تصویر رایگان بدون OpenAI مقدار `IMAGE_PROVIDER=Pollinations`
+  استفاده می‌شود. اگر تصویر نمی‌خواهی، مقدار را `None` بگذار.
 - مقدار `WORDPRESS_POST_STATUS=draft` باعث می‌شود مطلب در وردپرس فقط به‌صورت
   پیش‌نویس ذخیره شود. این تنظیم فقط وضعیت پست وردپرس را کنترل می‌کند؛ تلگرام و
   اینستاگرام از تنظیمات `PUBLISH_TO_TELEGRAM` و `PUBLISH_TO_INSTAGRAM` پیروی می‌کنند.

@@ -9,7 +9,7 @@ Content Producer یک Worker سرویس با .NET است که تولید و ان
 
 - اجرای روزانه با `SchedulerAgent` و قابلیت اجرای دستی با `run-once`
 - تولید مقاله با Providerهای `OpenAI`، `Groq` یا `Fixture`
-- تولید تصویر شاخص با `OpenAI` یا `Fixture`
+- تولید تصویر شاخص با `OpenAI`، `Pollinations` یا `Fixture`
 - امکان غیرفعال‌کردن تصویر با `ImageProvider: None`
 - انتشار مقاله در وردپرس با دسته‌بندی قابل تنظیم، تصویر شاخص، excerpt و لینک‌های داخلی
 - انتشار خلاصه و لینک مطلب در تلگرام، همراه تصویر در صورت وجود

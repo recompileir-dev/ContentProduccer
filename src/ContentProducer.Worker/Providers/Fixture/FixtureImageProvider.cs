@@ -40,7 +40,10 @@ public sealed class FixtureImageProvider : IImageProvider
             "Loaded fixture image from {ImagePath}.",
             imagePath);
 
-        return new GeneratedImage(imageContent);
+        return new GeneratedImage(
+            imageContent,
+            GetContentType(imagePath),
+            Path.GetFileName(imagePath));
     }
 
     private string ResolvePath(string path)
@@ -48,5 +51,15 @@ public sealed class FixtureImageProvider : IImageProvider
         return Path.IsPathRooted(path)
             ? path
             : Path.GetFullPath(path, _hostEnvironment.ContentRootPath);
+    }
+
+    private static string GetContentType(string imagePath)
+    {
+        return Path.GetExtension(imagePath).ToLowerInvariant() switch
+        {
+            ".jpg" or ".jpeg" => "image/jpeg",
+            ".webp" => "image/webp",
+            _ => "image/png"
+        };
     }
 }

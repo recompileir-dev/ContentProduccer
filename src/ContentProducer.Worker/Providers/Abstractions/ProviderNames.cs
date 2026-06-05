@@ -8,5 +8,7 @@ public static class ProviderNames
 
     public const string Fixture = "Fixture";
 
+    public const string Pollinations = "Pollinations";
+
     public const string None = "None";
 }

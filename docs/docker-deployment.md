@@ -63,6 +63,7 @@ Replace every placeholder with the real value. Important settings:
 
 - `OPENAI_API_KEY`
 - `GROQ_API_KEY` when `LLM_PROVIDER=Groq`
+- `IMAGE_PROVIDER`, usually `Pollinations`, `OpenAI`, `Fixture`, or `None`
 - `WORDPRESS_SITE_URL`
 - `WORDPRESS_USERNAME`
 - `WORDPRESS_APPLICATION_PASSWORD`
@@ -109,8 +110,26 @@ ARTICLE_PROMPT_FILE_PATH=prompts/article-news-fa.md
 GROQ_ARTICLE_PROMPT_FILE_PATH=prompts/article-news-groq-fa.md
 ```
 
-Groq does not provide image generation. Use `IMAGE_PROVIDER=OpenAI` instead
-when OpenAI should generate an image for Groq articles.
+Groq does not provide image generation. Use `IMAGE_PROVIDER=OpenAI` when OpenAI
+should generate an image for Groq articles, or use `IMAGE_PROVIDER=Pollinations`
+for the free public image endpoint.
+
+Pollinations image generation can be enabled without an API key:
+
+```dotenv
+IMAGE_PROVIDER=Pollinations
+POLLINATIONS_MODEL=flux
+POLLINATIONS_WIDTH=1536
+POLLINATIONS_HEIGHT=1024
+POLLINATIONS_NO_LOGO=true
+POLLINATIONS_PRIVATE=true
+POLLINATIONS_SAFE=true
+POLLINATIONS_MAX_ATTEMPTS=3
+POLLINATIONS_RETRY_DELAY_SECONDS=30
+```
+
+Pollinations is a free public service, so it is useful for MVP testing but does
+not provide the same reliability guarantees as a paid image API.
 
 To temporarily disable a publishing destination:
 
