@@ -182,11 +182,9 @@ dotnet run --project src/ContentProducer.Worker
 
 Each run sends generated content directly to WordPress. By default, WordPress
 posts are created as drafts (`WordPress:PostStatus = draft`) so they can be
-reviewed before going public. Social publishing is skipped for drafts because
-the WordPress post link is not public yet. Set `WordPress:PostStatus` to
-`publish` only when WordPress and social channels should publish immediately.
-When a public post has no image, Telegram still publishes a text message and
-Instagram is skipped.
+reviewed before going public. Telegram and Instagram publishing keep following
+their own `Publishing` settings. When no image is generated, Telegram still
+publishes a text message and Instagram is skipped.
 
 ## Local Test Without Scheduler
 
