@@ -118,7 +118,7 @@ SCHEDULER_START_AT=08:00:00
 SCHEDULER_TIME_ZONE_ID=Asia/Tehran
 
 LLM_PROVIDER=Groq
-IMAGE_PROVIDER=Pollinations
+IMAGE_PROVIDER=SourcePageImages
 GROQ_API_KEY=replace-with-real-groq-api-key
 GROQ_WRITER_MODEL=openai/gpt-oss-120b
 GROQ_MAX_COMPLETION_TOKENS=5000
@@ -126,12 +126,8 @@ GROQ_ENABLE_WRITER_FALLBACK=true
 GROQ_FALLBACK_WRITER_MODEL=llama-3.3-70b-versatile
 GROQ_FALLBACK_MAX_COMPLETION_TOKENS=4500
 GROQ_ARTICLE_PROMPT_FILE_PATH=prompts/article-news-groq-fa.md
-POLLINATIONS_MODEL=flux
-POLLINATIONS_WIDTH=1536
-POLLINATIONS_HEIGHT=1024
-POLLINATIONS_SAFE=true
-POLLINATIONS_MAX_ATTEMPTS=3
-POLLINATIONS_RETRY_DELAY_SECONDS=30
+SOURCE_PAGE_IMAGES_MAX_SOURCE_PAGES=5
+SOURCE_PAGE_IMAGES_MAX_IMAGE_CANDIDATES_PER_PAGE=6
 
 WORDPRESS_SITE_URL=https://example.com/
 WORDPRESS_USERNAME=wordpress-user
@@ -148,8 +144,9 @@ PUBLISH_TO_TELEGRAM=false
 نکته‌ها:
 
 - مدل `openai/gpt-oss-120b` در این پروژه از API و کلید Groq استفاده می‌کند.
-- Groq تولید تصویر ندارد؛ برای تصویر رایگان بدون OpenAI مقدار `IMAGE_PROVIDER=Pollinations`
-  استفاده می‌شود. اگر تصویر نمی‌خواهی، مقدار را `None` بگذار.
+- Groq تولید تصویر ندارد؛ برای پیدا کردن تصویر از منابع مقاله مقدار
+  `IMAGE_PROVIDER=SourcePageImages` استفاده می‌شود. اگر تصویر نمی‌خواهی، مقدار
+  را `None` بگذار. اگر تصویر تولیدی می‌خواهی، می‌توانی `Pollinations` یا `OpenAI` را انتخاب کنی.
 - مقدار `WORDPRESS_POST_STATUS=draft` باعث می‌شود مطلب در وردپرس فقط به‌صورت
   پیش‌نویس ذخیره شود. این تنظیم فقط وضعیت پست وردپرس را کنترل می‌کند؛ تلگرام و
   اینستاگرام از تنظیمات `PUBLISH_TO_TELEGRAM` و `PUBLISH_TO_INSTAGRAM` پیروی می‌کنند.
@@ -233,8 +230,8 @@ docker compose run --rm content-producer run-once
 
 ## 10. فعال‌کردن اینستاگرام در صورت نیاز
 
-اینستاگرام برای پست Feed به تصویر نیاز دارد. ابتدا `IMAGE_PROVIDER=OpenAI` و
-`OPENAI_API_KEY` را تنظیم کن، سپس:
+اینستاگرام برای پست Feed به تصویر نیاز دارد. ابتدا مطمئن شو یکی از Providerهای
+تصویر مثل `SourcePageImages`، `Pollinations` یا `OpenAI` فعال است، سپس:
 
 ```dotenv
 INSTAGRAM_USER_ID=replace-with-instagram-user-id

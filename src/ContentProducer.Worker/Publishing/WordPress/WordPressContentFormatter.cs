@@ -50,8 +50,11 @@ public static class WordPressContentFormatter
 
         string altText = WebUtility.HtmlEncode(GetFocusKeyphrase(article));
         string imageUrl = WebUtility.HtmlEncode(featuredImage.SourceUrl);
+        string caption = string.IsNullOrWhiteSpace(featuredImage.Caption)
+            ? string.Empty
+            : $"<figcaption>{WebUtility.HtmlEncode(featuredImage.Caption)}</figcaption>";
 
-        return $"<figure class=\"wp-block-image\"><img src=\"{imageUrl}\" alt=\"{altText}\" /></figure>";
+        return $"<figure class=\"wp-block-image\"><img src=\"{imageUrl}\" alt=\"{altText}\" />{caption}</figure>";
     }
 
     private static string BuildInternalLinks(IReadOnlyList<string> internalLinkUrls)

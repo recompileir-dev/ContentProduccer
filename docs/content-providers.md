@@ -15,14 +15,16 @@ LLM providers:
 Image providers:
 
 - `OpenAI`: generates one website article image
+- `SourcePageImages`: crawls the generated article references and reuses an image from the source pages
 - `Pollinations`: generates one website article image from a free public endpoint without an API key
 - `Fixture`: loads the committed example image without an API request
 - `None`: disables image generation
 
 Groq is used for text content only. Its API supports image understanding as
 input, but it does not provide image generation. To use Groq articles with
-generated images, select `Groq` as the LLM provider and `Pollinations` or
-`OpenAI` as the image provider. To avoid using an image API, select `None`.
+found or generated images, select `Groq` as the LLM provider and
+`SourcePageImages`, `Pollinations`, or `OpenAI` as the image provider. To avoid
+using an image API, select `None`.
 
 ## Provider Selection
 
@@ -30,7 +32,7 @@ generated images, select `Groq` as the LLM provider and `Pollinations` or
 {
   "ContentGeneration": {
     "LlmProvider": "Groq",
-    "ImageProvider": "Pollinations",
+    "ImageProvider": "SourcePageImages",
     "PromptFilePath": "prompts/article-news-fa.md",
     "ProviderPromptFilePaths": {
       "Groq": "prompts/article-news-groq-fa.md"
@@ -51,6 +53,32 @@ without changing provider code.
 With `ImageProvider: None`, WordPress publishes without featured media,
 Telegram publishes a text message, and Instagram is skipped because its feed
 publishing API requires media.
+
+## Source Page Image Settings
+
+```json
+{
+  "SourcePageImages": {
+    "MaxSourcePages": 5,
+    "MaxImageCandidatesPerPage": 6,
+    "MaxImageBytes": 8000000,
+    "MinImageBytes": 15000,
+    "PreferOpenGraphImages": true,
+    "AllowedHosts": [],
+    "BlockedHosts": []
+  }
+}
+```
+
+This provider does not create a new image and does not scrape Google Images. It
+uses the URLs already returned in the article `references`, downloads those
+source pages, looks for `og:image`, `twitter:image`, and normal `<img>` tags,
+then uploads the first usable image to WordPress. The original source page is
+stored in the WordPress media caption.
+
+Because the image comes from another website, licensing still matters. Use
+`AllowedHosts` to restrict crawling to sources you trust, and review the media
+before publishing publicly.
 
 ## Pollinations Settings
 
@@ -176,6 +204,7 @@ Domain/                   generated content models and parsing
 Providers/Abstractions/   LLM and image provider contracts
 Providers/OpenAI/         OpenAI article and image providers
 Providers/Groq/           Groq article provider
+Providers/SourcePages/    crawler for images on article source pages
 Providers/Pollinations/   free public image provider
 Providers/Fixture/        fake providers backed by fixture files
 Providers/None/           image generation opt-out provider

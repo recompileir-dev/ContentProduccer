@@ -9,7 +9,7 @@
 5. Provider متن مقاله را به‌صورت JSON ساختارمند تولید می‌کند.
 6. `GeneratedArticleParser` خروجی را parse و اعتبارسنجی می‌کند.
 7. Provider تصویر از `ContentGeneration:ImageProvider` انتخاب می‌شود.
-8. اگر Provider تصویر `OpenAI`، `Pollinations` یا `Fixture` باشد یک تصویر شاخص تولید/لود می‌شود.
+8. اگر Provider تصویر `SourcePageImages`، `OpenAI`، `Pollinations` یا `Fixture` باشد یک تصویر شاخص پیدا/تولید/لود می‌شود.
 9. اگر Provider تصویر `None` باشد workflow بدون تصویر ادامه پیدا می‌کند.
 10. تصویر، در صورت وجود، مستقیماً در WordPress Media Library آپلود می‌شود.
 11. مقاله در وردپرس با وضعیت تنظیم‌شده ساخته می‌شود؛ پیش‌فرض فعلی `draft` است.
@@ -84,16 +84,19 @@
 در این حالت وردپرس text-only منتشر می‌شود، تلگرام پیام متنی می‌فرستد و
 اینستاگرام skip می‌شود.
 
-### تولید مقاله با Groq و تصویر رایگان Pollinations
+### تولید مقاله با Groq و تصویر از منابع مقاله
 
 ```json
 {
   "ContentGeneration": {
     "LlmProvider": "Groq",
-    "ImageProvider": "Pollinations"
+    "ImageProvider": "SourcePageImages"
   }
 }
 ```
+
+در این حالت تصویر جدید ساخته نمی‌شود. سرویس صفحات منبع مقاله را crawl می‌کند و
+از `og:image`، `twitter:image` یا تصویرهای داخل همان صفحه استفاده می‌کند.
 
 ### تست بدون API با fixture
 

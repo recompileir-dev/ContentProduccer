@@ -22,7 +22,7 @@ services:
       Scheduler__StartAt: ${SCHEDULER_START_AT:-08:00:00}
       Scheduler__TimeZoneId: ${SCHEDULER_TIME_ZONE_ID:-Asia/Tehran}
       ContentGeneration__LlmProvider: ${LLM_PROVIDER:-OpenAI}
-      ContentGeneration__ImageProvider: ${IMAGE_PROVIDER:-Pollinations}
+      ContentGeneration__ImageProvider: ${IMAGE_PROVIDER:-SourcePageImages}
       ContentGeneration__PromptFilePath: ${ARTICLE_PROMPT_FILE_PATH:-prompts/article-news-fa.md}
       ContentGeneration__ProviderPromptFilePaths__Groq: ${GROQ_ARTICLE_PROMPT_FILE_PATH:-prompts/article-news-groq-fa.md}
       ContentGeneration__ImagePromptFilePath: ${IMAGE_PROMPT_FILE_PATH:-prompts/article-image-fa.md}
@@ -53,6 +53,11 @@ services:
       Pollinations__MaxPromptCharacters: ${POLLINATIONS_MAX_PROMPT_CHARACTERS:-700}
       Pollinations__MaxAttempts: ${POLLINATIONS_MAX_ATTEMPTS:-3}
       Pollinations__RetryDelaySeconds: ${POLLINATIONS_RETRY_DELAY_SECONDS:-30}
+      SourcePageImages__MaxSourcePages: ${SOURCE_PAGE_IMAGES_MAX_SOURCE_PAGES:-5}
+      SourcePageImages__MaxImageCandidatesPerPage: ${SOURCE_PAGE_IMAGES_MAX_IMAGE_CANDIDATES_PER_PAGE:-6}
+      SourcePageImages__MaxImageBytes: ${SOURCE_PAGE_IMAGES_MAX_IMAGE_BYTES:-8000000}
+      SourcePageImages__MinImageBytes: ${SOURCE_PAGE_IMAGES_MIN_IMAGE_BYTES:-15000}
+      SourcePageImages__PreferOpenGraphImages: ${SOURCE_PAGE_IMAGES_PREFER_OPEN_GRAPH_IMAGES:-true}
       WordPress__SiteUrl: ${WORDPRESS_SITE_URL}
       WordPress__PostStatus: ${WORDPRESS_POST_STATUS:-draft}
       WordPress__CategoryId: ${WORDPRESS_CATEGORY_ID}

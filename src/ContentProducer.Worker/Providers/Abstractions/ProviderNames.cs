@@ -10,5 +10,7 @@ public static class ProviderNames
 
     public const string Pollinations = "Pollinations";
 
+    public const string SourcePageImages = "SourcePageImages";
+
     public const string None = "None";
 }

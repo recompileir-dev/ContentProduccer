@@ -27,7 +27,7 @@ Content Producer یک Worker سرویس با .NET است که در زمان مش
 - اجرای زمان‌بندی‌شده روزانه با `SchedulerAgent`
 - اجرای دستی با دستور `run-once` برای تست لوکال یا اجرای فوری
 - تولید مقاله با `OpenAI`، `Groq` یا داده نمونه `Fixture`
-- تولید تصویر شاخص با `OpenAI`، `Pollinations` یا `Fixture`
+- پیدا کردن یا تولید تصویر شاخص با `SourcePageImages`، `OpenAI`، `Pollinations` یا `Fixture`
 - امکان اجرای کامل بدون تصویر با `ImageProvider: None`
 - پرامپت‌های قابل ویرایش برای مقاله و تصویر
 - پرامپت اختصاصی برای Groq به‌خاطر رفتار متفاوت مدل‌ها
@@ -57,7 +57,7 @@ Content Producer یک Worker سرویس با .NET است که در زمان مش
 
 - امنیت: نگهداری API keyها، توکن‌ها و پسوردها فقط در environment variable یا فایل‌های ignored
 - توسعه‌پذیری: امکان افزودن Provider جدید برای متن، تصویر یا کانال انتشار
-- کنترل هزینه: امکان انتخاب Groq، Pollinations، Fixture یا `ImageProvider: None` برای کاهش هزینه تست
+- کنترل هزینه: امکان انتخاب Groq، SourcePageImages، Pollinations، Fixture یا `ImageProvider: None` برای کاهش هزینه تست
 - مشاهده‌پذیری: لاگ کافی برای تشخیص خطاهای API و انتشار
 - کیفیت محتوا: پرامپت‌های قابل تنظیم، حداقل طول مقاله و کنترل موضوعات مجاز
 - استقرارپذیری: اجرای یکسان روی لوکال و سرور لینوکس با Docker

@@ -63,7 +63,7 @@ Replace every placeholder with the real value. Important settings:
 
 - `OPENAI_API_KEY`
 - `GROQ_API_KEY` when `LLM_PROVIDER=Groq`
-- `IMAGE_PROVIDER`, usually `Pollinations`, `OpenAI`, `Fixture`, or `None`
+- `IMAGE_PROVIDER`, usually `SourcePageImages`, `Pollinations`, `OpenAI`, `Fixture`, or `None`
 - `WORDPRESS_SITE_URL`
 - `WORDPRESS_USERNAME`
 - `WORDPRESS_APPLICATION_PASSWORD`
@@ -110,9 +110,19 @@ ARTICLE_PROMPT_FILE_PATH=prompts/article-news-fa.md
 GROQ_ARTICLE_PROMPT_FILE_PATH=prompts/article-news-groq-fa.md
 ```
 
-Groq does not provide image generation. Use `IMAGE_PROVIDER=OpenAI` when OpenAI
-should generate an image for Groq articles, or use `IMAGE_PROVIDER=Pollinations`
-for the free public image endpoint.
+Groq does not provide image generation. Use `IMAGE_PROVIDER=SourcePageImages`
+when the image should be reused from the article source pages, use
+`IMAGE_PROVIDER=Pollinations` for the free public image endpoint, or use
+`IMAGE_PROVIDER=OpenAI` when OpenAI should generate a new image.
+
+To find images by crawling the article source pages instead of creating new
+images:
+
+```dotenv
+IMAGE_PROVIDER=SourcePageImages
+SOURCE_PAGE_IMAGES_MAX_SOURCE_PAGES=5
+SOURCE_PAGE_IMAGES_MAX_IMAGE_CANDIDATES_PER_PAGE=6
+```
 
 Pollinations image generation can be enabled without an API key:
 

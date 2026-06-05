@@ -12,7 +12,7 @@ a configured time every day.
 - Reads an article prompt from a file on the host
 - Generates a Persian article through a configurable LLM provider
 - Supports OpenAI, Groq, and fixture LLM providers
-- Optionally generates one website article image using OpenAI, Pollinations, or fixture image providers
+- Optionally finds or generates one website article image using source-page crawling, OpenAI, Pollinations, or fixture image providers
 - Uploads the generated image directly to the WordPress Media Library
 - Publishes the article to WordPress with the image as featured media
 - Publishes a single-image Instagram post when an image is available
@@ -48,8 +48,8 @@ OpenAI API billing is separate from a free ChatGPT account. A smaller model
 reduces cost, but API requests still require an API project with available
 credit or billing. `OPENAI_API_KEY` is still required when OpenAI is selected
 as the image provider, even if Groq generates the article. Select
-`Pollinations` as the image provider when a free public image endpoint should
-be used without an OpenAI account.
+`SourcePageImages` when the image should be found by crawling the article source
+pages instead of creating a new image.
 
 Configure the active providers and prompt paths in
 `src/ContentProducer.Worker/appsettings.json`:
@@ -58,7 +58,7 @@ Configure the active providers and prompt paths in
 {
   "ContentGeneration": {
     "LlmProvider": "OpenAI",
-    "ImageProvider": "Pollinations",
+    "ImageProvider": "SourcePageImages",
     "PromptFilePath": "prompts/article-news-fa.md",
     "ProviderPromptFilePaths": {
       "Groq": "prompts/article-news-groq-fa.md"
@@ -96,7 +96,7 @@ Choose the LLM provider by changing `ContentGeneration:LlmProvider`:
 ```
 
 Valid LLM providers are `OpenAI`, `Groq`, and `Fixture`. The image provider can
-be `OpenAI`, `Pollinations`, `Fixture`, or `None`. Choose `None` when an article should be
+be `SourcePageImages`, `OpenAI`, `Pollinations`, `Fixture`, or `None`. Choose `None` when an article should be
 published without calling an image API. Choose the active article prompt with:
 
 ```json
@@ -151,12 +151,12 @@ You can also select fixture providers in `appsettings.json`:
 Set the providers back to `OpenAI` or `Groq` to use a real LLM again.
 
 Groq does not provide an image generation endpoint. To generate an article with
-Groq and a free public image endpoint, configure:
+Groq and find an image by crawling the article references, configure:
 
 ```json
 "ContentGeneration": {
   "LlmProvider": "Groq",
-  "ImageProvider": "Pollinations"
+  "ImageProvider": "SourcePageImages"
 }
 ```
 

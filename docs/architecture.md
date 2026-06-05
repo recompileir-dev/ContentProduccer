@@ -17,8 +17,8 @@ ContentGeneratorService
    |                  |
    v                  v
 ILlmProvider      IImageProvider
-OpenAI/Groq/      OpenAI/Pollinations/
-Fixture           Fixture/None
+OpenAI/Groq/      SourcePageImages/OpenAI/
+Fixture           Pollinations/Fixture/None
           |
           v
 GeneratedContent
@@ -84,6 +84,7 @@ Providerهای متن:
 Providerهای تصویر:
 
 - `OpenAI`
+- `SourcePageImages`
 - `Pollinations`
 - `Fixture`
 - `None`
@@ -116,7 +117,7 @@ Providerهای تصویر:
 ### 7. Providerها
 
 هدف از Provider abstraction این است که workflow اصلی به مدل خاصی وابسته نباشد.
-برای مثال می‌توان مقاله را با Groq تولید کرد و تصویر را با Pollinations یا OpenAI ساخت، یا برای
+برای مثال می‌توان مقاله را با Groq تولید کرد و تصویر را با SourcePageImages از منابع مقاله پیدا کرد، با Pollinations یا OpenAI ساخت، یا برای
 تست هر دو را با Fixture جایگزین کرد.
 
 ## ساختار پوشه‌های اصلی
@@ -129,6 +130,7 @@ src/ContentProducer.Worker/
   Providers/Abstractions/   قراردادهای LLM و Image Provider
   Providers/OpenAI/         تولید مقاله و تصویر با OpenAI
   Providers/Groq/           تولید مقاله با Groq
+  Providers/SourcePages/    پیدا کردن تصویر از صفحات منبع مقاله
   Providers/Pollinations/   تولید تصویر از endpoint عمومی Pollinations
   Providers/Fixture/        داده نمونه برای تست بدون API
   Providers/None/           غیرفعال‌کردن تولید تصویر
