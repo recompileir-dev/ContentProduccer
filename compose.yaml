@@ -42,6 +42,7 @@ services:
       Groq__MaxResearchCharacters: ${GROQ_MAX_RESEARCH_CHARACTERS:-12000}
       Groq__ContinueWithoutResearchOnFailure: ${GROQ_CONTINUE_WITHOUT_RESEARCH_ON_FAILURE:-true}
       WordPress__SiteUrl: ${WORDPRESS_SITE_URL}
+      WordPress__PostStatus: ${WORDPRESS_POST_STATUS:-draft}
       WordPress__CategoryId: ${WORDPRESS_CATEGORY_ID}
       WordPress__RequireCategoryId: ${WORDPRESS_REQUIRE_CATEGORY_ID:-true}
       Instagram__InstagramUserId: ${INSTAGRAM_USER_ID}

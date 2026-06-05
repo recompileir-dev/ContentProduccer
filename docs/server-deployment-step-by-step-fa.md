@@ -130,6 +130,7 @@ GROQ_ARTICLE_PROMPT_FILE_PATH=prompts/article-news-groq-fa.md
 WORDPRESS_SITE_URL=https://example.com/
 WORDPRESS_USERNAME=wordpress-user
 WORDPRESS_APPLICATION_PASSWORD=replace-with-wordpress-application-password
+WORDPRESS_POST_STATUS=draft
 WORDPRESS_CATEGORY_ID=50
 WORDPRESS_REQUIRE_CATEGORY_ID=true
 
@@ -142,6 +143,9 @@ PUBLISH_TO_TELEGRAM=false
 
 - مدل `openai/gpt-oss-120b` در این پروژه از API و کلید Groq استفاده می‌کند.
 - Groq تولید تصویر ندارد؛ برای اجرای بدون OpenAI مقدار `IMAGE_PROVIDER=None` بماند.
+- مقدار `WORDPRESS_POST_STATUS=draft` باعث می‌شود مطلب در وردپرس فقط به‌صورت
+  پیش‌نویس ذخیره شود. تا وقتی این مقدار `draft` است، تلگرام و اینستاگرام هم
+  ارسال نمی‌شوند چون لینک مطلب عمومی نیست.
 - مقدار `WORDPRESS_CATEGORY_ID` باید شناسه واقعی دسته‌بندی مقصد در وردپرس باشد؛
   در سایت فعلی نمونه، مقدار `50` برای دسته «مجله» استفاده شده است.
 - اگر OpenAI باید تصویر بسازد، `IMAGE_PROVIDER=OpenAI` و `OPENAI_API_KEY` را تنظیم کن.
@@ -199,7 +203,8 @@ docker compose run --rm content-producer run-once
 ```
 
 بعد از موفقیت، مطلب جدید را در پنل وردپرس بررسی کن. اگر `IMAGE_PROVIDER=None`
-باشد، مطلب بدون تصویر شاخص منتشر می‌شود.
+باشد، مطلب بدون تصویر شاخص ساخته می‌شود. مقدار پیش‌فرض `WORDPRESS_POST_STATUS`
+برابر `draft` است؛ یعنی مطلب مستقیم public نمی‌شود.
 
 ## 9. فعال‌کردن و تست تلگرام
 

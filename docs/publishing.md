@@ -6,11 +6,12 @@
 2. The selected image provider optionally generates one article image.
 3. A generated image is kept in memory and is not written to the Worker disk.
 4. A generated image is uploaded directly to the WordPress Media Library.
-5. The WordPress post is published with the image as featured media and inside the post content, or as text-only when no image is generated.
+5. The WordPress post is created with the configured status. The default is `draft`, with the image as featured media and inside the post content, or as text-only when no image is generated.
 6. The WordPress post link is read from the WordPress REST API response.
-7. Instagram receives the generated image as a single-image post, or is skipped when no image exists.
-8. Instagram caption contains the summary and the original WordPress post URL.
-9. Telegram receives the summary and original WordPress post link, with the image when one exists.
+7. If the WordPress status is not `publish`, social publishing is skipped because the post link is not public.
+8. Instagram receives the generated image as a single-image post, or is skipped when no image exists.
+9. Instagram caption contains the summary and the original WordPress post URL.
+10. Telegram receives the summary and original WordPress post link, with the image when one exists.
 
 The Worker does not save article or image files locally. WordPress Media Library
 contains the single image used by the WordPress, Instagram, and Telegram posts.
@@ -76,7 +77,7 @@ dotnet run --project src/ContentProducer.Worker -- run-once --skip-instagram --s
     "SiteUrl": "https://example.com",
     "UsernameEnvironmentVariable": "WORDPRESS_USERNAME",
     "ApplicationPasswordEnvironmentVariable": "WORDPRESS_APPLICATION_PASSWORD",
-    "PostStatus": "publish",
+    "PostStatus": "draft",
     "CategoryId": 50,
     "RequireCategoryId": true
   }
@@ -92,6 +93,11 @@ export WORDPRESS_APPLICATION_PASSWORD="your-wordpress-application-password"
 ```
 
 The WordPress site must use HTTPS and expose the REST API.
+
+`PostStatus` controls whether the created WordPress post is only saved for
+review or published immediately. Keep the default `draft` for manual review.
+Use `publish` only when the article should become public and Telegram/Instagram
+publishing should run automatically after WordPress.
 
 `CategoryId` is the numeric WordPress post category ID. Find it from
 **Posts > Categories** by opening the category and reading the `tag_ID` value

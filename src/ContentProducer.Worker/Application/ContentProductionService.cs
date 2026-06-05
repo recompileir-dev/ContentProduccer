@@ -7,6 +7,7 @@ public sealed class ContentProductionService : IContentProductionService
     private readonly ILogger<ContentProductionService> _logger;
     private readonly PublishingOptions _publishingOptions;
     private readonly ITelegramPublisherService _telegramPublisherService;
+    private readonly WordPressOptions _wordPressOptions;
     private readonly IWordPressPublisherService _wordPressPublisherService;
 
     public ContentProductionService(
@@ -14,6 +15,7 @@ public sealed class ContentProductionService : IContentProductionService
         IInstagramPublisherService instagramPublisherService,
         ITelegramPublisherService telegramPublisherService,
         IWordPressPublisherService wordPressPublisherService,
+        Microsoft.Extensions.Options.IOptions<WordPressOptions> wordPressOptions,
         Microsoft.Extensions.Options.IOptions<PublishingOptions> publishingOptions,
         ILogger<ContentProductionService> logger)
     {
@@ -21,6 +23,7 @@ public sealed class ContentProductionService : IContentProductionService
         _instagramPublisherService = instagramPublisherService;
         _telegramPublisherService = telegramPublisherService;
         _wordPressPublisherService = wordPressPublisherService;
+        _wordPressOptions = wordPressOptions.Value;
         _logger = logger;
         _publishingOptions = publishingOptions.Value;
     }
@@ -57,6 +60,17 @@ public sealed class ContentProductionService : IContentProductionService
             article,
             media,
             cancellationToken);
+
+        if (!IsPublishedWordPressPost())
+        {
+            _logger.LogInformation(
+                "WordPress post was created with status {PostStatus}. " +
+                "Social publishing is skipped because the post is not public.",
+                _wordPressOptions.PostStatus);
+
+            LogCompleted();
+            return;
+        }
 
         string instagramCaption = SocialCaptionFormatter.BuildInstagramCaption(
             article,
@@ -98,6 +112,19 @@ public sealed class ContentProductionService : IContentProductionService
             _logger.LogInformation("Telegram publishing is disabled.");
         }
 
+        LogCompleted();
+    }
+
+    private bool IsPublishedWordPressPost()
+    {
+        return string.Equals(
+            _wordPressOptions.PostStatus,
+            "publish",
+            StringComparison.OrdinalIgnoreCase);
+    }
+
+    private void LogCompleted()
+    {
         _logger.LogInformation(
             "Content production service completed at {CompletedAt}.",
             DateTimeOffset.Now);

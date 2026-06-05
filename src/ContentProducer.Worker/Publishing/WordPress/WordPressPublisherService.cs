@@ -112,7 +112,7 @@ public sealed class WordPressPublisherService : IWordPressPublisherService
         using HttpResponseMessage response =
             await _httpClient.SendAsync(request, cancellationToken);
         string responseBody = await response.Content.ReadAsStringAsync(cancellationToken);
-        EnsureSuccess(response, responseBody, "publish WordPress post");
+        EnsureSuccess(response, responseBody, "create WordPress post");
 
         using JsonDocument document = JsonDocument.Parse(responseBody);
         int postId = document.RootElement.GetProperty("id").GetInt32();
@@ -122,8 +122,10 @@ public sealed class WordPressPublisherService : IWordPressPublisherService
         EnsureCategoryAssigned(document.RootElement, postId);
 
         _logger.LogInformation(
-            "Published WordPress post {PostId} with title {Title} in category {CategoryId}.",
+            "Created WordPress post {PostId} with status {PostStatus}, title {Title}, " +
+            "and category {CategoryId}.",
             postId,
+            _options.PostStatus,
             article.Title,
             _options.CategoryId);
 
@@ -184,7 +186,7 @@ public sealed class WordPressPublisherService : IWordPressPublisherService
         if (!categoryAssigned)
         {
             throw new InvalidOperationException(
-                $"WordPress post {postId} was published without the configured category " +
+                $"WordPress post {postId} was created without the configured category " +
                 $"{_options.CategoryId.Value}.");
         }
     }

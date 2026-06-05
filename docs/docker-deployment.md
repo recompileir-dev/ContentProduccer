@@ -66,6 +66,7 @@ Replace every placeholder with the real value. Important settings:
 - `WORDPRESS_SITE_URL`
 - `WORDPRESS_USERNAME`
 - `WORDPRESS_APPLICATION_PASSWORD`
+- `WORDPRESS_POST_STATUS`
 - `WORDPRESS_CATEGORY_ID`
 - `WORDPRESS_REQUIRE_CATEGORY_ID`
 - `INSTAGRAM_USER_ID`
@@ -75,6 +76,10 @@ Replace every placeholder with the real value. Important settings:
 - `SCHEDULER_START_AT`
 
 The `.env` file is ignored by Git. Do not commit, upload, or share it.
+
+`WORDPRESS_POST_STATUS` defaults to `draft`. Keep it as `draft` when articles
+must be reviewed in WordPress before going public. Set it to `publish` only when
+WordPress, Telegram, and Instagram should publish automatically in the same run.
 
 For the full news workflow with OpenAI, keep:
 

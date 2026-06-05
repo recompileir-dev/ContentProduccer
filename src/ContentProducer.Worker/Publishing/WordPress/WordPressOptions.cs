@@ -14,7 +14,7 @@ public sealed class WordPressOptions
     public string ApplicationPasswordEnvironmentVariable { get; init; } =
         "WORDPRESS_APPLICATION_PASSWORD";
 
-    public string PostStatus { get; init; } = "publish";
+    public string PostStatus { get; init; } = "draft";
 
     public int? CategoryId { get; init; }
 
