@@ -81,6 +81,10 @@ Content Producer از یک ایده ساده شروع شد: تولید خودک�
 52. بررسی خطای Groq `json_validate_failed` و مقاوم‌سازی خروجی JSON با Structured
     Outputs، fallback و تشخیص refusal واقعی.
 53. درخواست ساخت همین سند روایی برای ارائه و ادامه مسیر پروژه.
+54. به‌روزرسانی مستندات اصلی پروژه بعد از اضافه‌شدن Telegram، Groq، Docker، draft وردپرس و Providerهای جدید.
+55. تغییر انتشار وردپرس به حالت draft بدون تغییر رفتار Telegram و Instagram.
+56. بررسی گزینه‌های رایگان تصویر، اضافه‌شدن Pollinations و سپس جداشدن کامل Image Providerها.
+57. کنار گذاشتن Google Image Search API و اضافه‌شدن `SourcePageImages` برای پیدا کردن تصویر از صفحات منبع مقاله.
 
 ## خط زمانی فنی پروژه
 
@@ -404,6 +408,22 @@ interfaceها کار می‌کند.
 با اضافه‌شدن Groq، چون Groq تصویر تولید نمی‌کند، image optional شد. این تغییر باعث
 شد کل سیستم نسبت به نبود تصویر مقاوم شود.
 
+### از تولید تصویر فقط با AI به انتخاب‌پذیری Image Provider
+
+در ابتدا تصویر فقط با OpenAI ساخته می‌شد. بعداً به‌خاطر محدودیت اکانت و هزینه،
+Providerهای تصویر جدا شدند تا بتوان برای هر اجرا انتخاب کرد تصویر از کجا بیاید:
+OpenAI برای تولید تصویر، Pollinations برای تولید رایگان و آزمایشی، Fixture برای تست،
+`None` برای بدون تصویر، و `SourcePageImages` برای استفاده از تصویر موجود در صفحات
+منبع مقاله.
+
+### از Google Image Search API به Source Page Crawling
+
+برای پیدا کردن تصویر با جست‌وجو ابتدا مسیر Google Image Search API بررسی شد، اما چون
+به Google Cloud و کلید API وابسته بود، کنار گذاشته شد. مسیر فعلی به‌جای کرال Google
+Images، صفحات منبع همان مقاله را باز می‌کند و از `og:image`، `twitter:image` یا تصاویر
+داخل صفحه یک تصویر مناسب پیدا می‌کند. این مسیر مستقل از Google Cloud است، اما همچنان
+نیازمند توجه به حق استفاده از تصویر و بازبینی قبل از انتشار عمومی است.
+
 ### از prompt مشترک به prompt اختصاصی Provider
 
 OpenAI و Groq رفتار متفاوتی دارند. بنابراین `ProviderPromptFilePaths` اضافه شد تا
@@ -453,6 +473,13 @@ gate وجود دارد.
 prompt می‌تواند تنوع را بهتر کند، اما اگر دیتابیس یا حافظه مقالات قبلی نداریم، تضمین
 عدم تکرار واقعی نداریم.
 
+### تصویر منبع پیدا می‌شود، اما مجوز استفاده تضمین نمی‌شود
+
+`SourcePageImages` تصویر را از منابع مقاله پیدا می‌کند و attribution را در کپشن رسانه
+وردپرس نگه می‌دارد، اما این به معنی تضمین مجوز حقوقی استفاده از تصویر نیست. درس:
+برای production یا باید منابع مجاز/مطمئن را با `AllowedHosts` محدود کرد، یا مرحله
+بازبینی انسانی تصویر را جدی گرفت.
+
 ## فیچرهای اضافه‌شده
 
 - مستندات پایه پروژه
@@ -460,6 +487,8 @@ prompt می‌تواند تنوع را بهتر کند، اما اگر دیتا�
 - اجرای دستی `run-once`
 - OpenAI article generation
 - OpenAI image generation
+- Pollinations image generation
+- Source page image crawling
 - promptهای قابل ویرایش
 - WordPress publishing
 - Instagram publishing
@@ -470,6 +499,7 @@ prompt می‌تواند تنوع را بهتر کند، اما اگر دیتا�
 - Image Provider abstraction
 - Groq provider
 - None image provider
+- SourcePageImages provider
 - Provider-specific prompts
 - Groq web research
 - Groq structured outputs
@@ -488,6 +518,8 @@ prompt می‌تواند تنوع را بهتر کند، اما اگر دیتا�
 - با OpenAI یا Groq مقاله بسازد.
 - با Groq بدون تصویر کار کند.
 - با OpenAI تصویر شاخص بسازد.
+- با Pollinations تصویر رایگان آزمایشی بسازد.
+- با SourcePageImages از صفحات منبع مقاله تصویر پیدا کند.
 - مقاله را به وردپرس بفرستد.
 - دسته‌بندی وردپرس را قبل و بعد از publish validate کند.
 - خلاصه و لینک را به تلگرام بفرستد.
@@ -507,6 +539,8 @@ prompt می‌تواند تنوع را بهتر کند، اما اگر دیتا�
   است.
 - SEO متادیتا برای بعضی pluginها ممکن است به register کردن meta در وردپرس نیاز داشته
   باشد.
+- تصویرهای پیدا‌شده از صفحات منبع از نظر کیفیت، تناسب و مجوز استفاده باید قبل از
+  انتشار عمومی بازبینی شوند.
 
 ## پیشنهاد مسیر ارائه
 
@@ -520,11 +554,12 @@ prompt می‌تواند تنوع را بهتر کند، اما اگر دیتا�
 6. **تست بدون هزینه:** fixtureها و اسکریپت‌های محلی.
 7. **تغییر معماری:** Providerها و جداسازی OpenAI/Groq/Fixture.
 8. **Groq و دردسرهای production:** 413، JSON failure، مقاله کوتاه، نبود تصویر.
-9. **مقاوم‌سازی:** `ImageProvider=None`, structured outputs, fallback و validation.
-10. **آماده‌سازی deployment:** Docker و راهنمای سرور.
-11. **درس اصلی:** اتوماسیون محتوا فقط تولید متن نیست؛ reliability، تنظیمات، publish
+9. **تصویر بدون وابستگی به یک سرویس:** OpenAI، Pollinations، Fixture، None و SourcePageImages.
+10. **مقاوم‌سازی:** `ImageProvider=None`, structured outputs, fallback و validation.
+11. **آماده‌سازی deployment:** Docker و راهنمای سرور.
+12. **درس اصلی:** اتوماسیون محتوا فقط تولید متن نیست؛ reliability، تنظیمات، publish
     validation و کیفیت خروجی همان‌قدر مهم هستند.
-12. **قدم بعدی:** اضافه کردن حافظه، بازبینی انسانی، queue و داشبورد.
+13. **قدم بعدی:** اضافه کردن حافظه، بازبینی انسانی، queue و داشبورد.
 
 ## پیشنهاد اسلایدها
 
@@ -546,7 +581,8 @@ Scheduler -> Content Generator -> LLM Provider -> Image Provider -> Publishers.
 
 ### اسلاید ۵: Providerها
 
-OpenAI، Groq، Fixture و None. دلیل: کاهش وابستگی و امکان تست.
+OpenAI، Groq، Fixture و None برای متن/جریان تست؛ OpenAI، Pollinations، SourcePageImages،
+Fixture و None برای تصویر. دلیل: کاهش وابستگی و امکان تست.
 
 ### اسلاید ۶: انتشار
 
@@ -623,6 +659,8 @@ Database، job history، duplicate detection، human approval، dashboard و ana
 - بررسی کیفیت تصویر
 - تولید alt text جداگانه
 - امکان انتخاب دستی تصویر پیش از انتشار
+- محدود کردن `SourcePageImages` به hostهای مطمئن با `AllowedHosts`
+- ثبت وضعیت مجوز/منبع تصویر در تاریخچه job
 
 ### ۷. مانیتورینگ production
 
