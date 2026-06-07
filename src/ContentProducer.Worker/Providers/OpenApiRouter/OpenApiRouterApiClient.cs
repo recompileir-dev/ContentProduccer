@@ -28,6 +28,7 @@ public sealed class OpenApiRouterApiClient
 
         using HttpRequestMessage request = new(HttpMethod.Post, relativeUrl);
         request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", apiKey);
+        request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
         request.Content = new StringContent(json, Encoding.UTF8, "application/json");
 
         using HttpResponseMessage response = await _httpClient.SendAsync(request, cancellationToken);
@@ -37,6 +38,23 @@ public sealed class OpenApiRouterApiClient
         {
             throw new InvalidOperationException(
                 $"OpenApi Router request failed with status {(int)response.StatusCode}: {responseBody}");
+        }
+
+        // Detect non-JSON responses (HTML error pages or redirects) to provide clearer errors.
+        string? contentType = response.Content.Headers.ContentType?.MediaType;
+
+        if (!string.IsNullOrWhiteSpace(contentType) &&
+            !contentType.Contains("json", StringComparison.OrdinalIgnoreCase))
+        {
+            throw new InvalidOperationException(
+                $"OpenApi Router returned non-JSON content (Content-Type: {contentType}). Response body: {responseBody}");
+        }
+
+        // Extra safety: some endpoints return HTML starting with '<'. Detect and fail.
+        if (!string.IsNullOrWhiteSpace(responseBody) && responseBody.TrimStart().StartsWith('<'))
+        {
+            throw new InvalidOperationException(
+                $"OpenApi Router returned an HTML response instead of JSON. Response body starts with '<'. Response body: {responseBody}");
         }
 
         return JsonDocument.Parse(responseBody);

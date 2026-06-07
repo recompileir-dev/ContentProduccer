@@ -84,11 +84,16 @@ IHost host = Host.CreateDefaultBuilder(hostArgs)
             OpenApiRouterOptions options = sp.GetRequiredService<
                 Microsoft.Extensions.Options.IOptions<OpenApiRouterOptions>>().Value;
 
-            return new HttpClient
+            HttpClient client = new HttpClient
             {
-                BaseAddress = new Uri(options.BaseUrl),
+                BaseAddress = new Uri(options.BaseUrl.TrimEnd('/') + "/"),
                 Timeout = TimeSpan.FromMinutes(10)
             };
+
+            client.DefaultRequestHeaders.Accept.Add(
+                new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json"));
+
+            return client;
         });
         services.AddSingleton<OpenAiApiClient>();
         services.AddSingleton<GroqApiClient>();
