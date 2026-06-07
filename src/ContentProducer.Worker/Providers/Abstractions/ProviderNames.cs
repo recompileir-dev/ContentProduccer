@@ -13,4 +13,6 @@ public static class ProviderNames
     public const string SourcePageImages = "SourcePageImages";
 
     public const string None = "None";
+    
+    public const string OpenApiRouter = "OpenApiRouter";
 }

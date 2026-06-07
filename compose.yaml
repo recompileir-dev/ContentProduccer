@@ -15,6 +15,12 @@ services:
       TZ: ${TZ:-Asia/Tehran}
       OPENAI_API_KEY: ${OPENAI_API_KEY}
       GROQ_API_KEY: ${GROQ_API_KEY}
+      OPENAPI_ROUTER_API_KEY: ${OPENAPI_ROUTER_API_KEY}
+      OpenApiRouter__BaseUrl: ${OPENAPI_ROUTER_BASE_URL:-https://api.openapirouter.example/v1/}
+      OpenApiRouter__ArticleModel: ${OPENAPI_ROUTER_ARTICLE_MODEL:-router-model}
+      OpenApiRouter__ImageModel: ${OPENAPI_ROUTER_IMAGE_MODEL:-router-image-1}
+      OpenApiRouter__ImageSize: ${OPENAPI_ROUTER_IMAGE_SIZE:-1536x1024}
+      OpenApiRouter__ImageQuality: ${OPENAPI_ROUTER_IMAGE_QUALITY:-low}
       WORDPRESS_USERNAME: ${WORDPRESS_USERNAME}
       WORDPRESS_APPLICATION_PASSWORD: ${WORDPRESS_APPLICATION_PASSWORD}
       INSTAGRAM_ACCESS_TOKEN: ${INSTAGRAM_ACCESS_TOKEN}

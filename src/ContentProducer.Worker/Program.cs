@@ -47,6 +47,8 @@ IHost host = Host.CreateDefaultBuilder(hostArgs)
             context.Configuration.GetSection(SchedulerOptions.SectionName));
         services.Configure<OpenAiOptions>(
             context.Configuration.GetSection(OpenAiOptions.SectionName));
+        services.Configure<OpenApiRouterOptions>(
+            context.Configuration.GetSection(OpenApiRouterOptions.SectionName));
         services.Configure<GroqOptions>(
             context.Configuration.GetSection(GroqOptions.SectionName));
         services.Configure<PollinationsOptions>(
@@ -77,14 +79,28 @@ IHost host = Host.CreateDefaultBuilder(hostArgs)
                 Timeout = TimeSpan.FromMinutes(10)
             };
         });
+        services.AddSingleton(sp =>
+        {
+            OpenApiRouterOptions options = sp.GetRequiredService<
+                Microsoft.Extensions.Options.IOptions<OpenApiRouterOptions>>().Value;
+
+            return new HttpClient
+            {
+                BaseAddress = new Uri(options.BaseUrl),
+                Timeout = TimeSpan.FromMinutes(10)
+            };
+        });
         services.AddSingleton<OpenAiApiClient>();
         services.AddSingleton<GroqApiClient>();
+        services.AddSingleton<OpenApiRouterApiClient>();
         services.AddSingleton<ILlmProvider, OpenAiLlmProvider>();
         services.AddSingleton<ILlmProvider, GroqLlmProvider>();
+        services.AddSingleton<ILlmProvider, OpenApiRouterLlmProvider>();
         services.AddSingleton<ILlmProvider, FixtureLlmProvider>();
         services.AddSingleton<IImageProvider, OpenAiImageProvider>();
         services.AddSingleton<IImageProvider, PollinationsImageProvider>();
         services.AddSingleton<IImageProvider, SourcePageImagesProvider>();
+        services.AddSingleton<IImageProvider, OpenApiRouterImageProvider>();
         services.AddSingleton<IImageProvider, FixtureImageProvider>();
         services.AddSingleton<IImageProvider, NoneImageProvider>();
         services.AddSingleton<IContentGeneratorService, ContentGeneratorService>();
